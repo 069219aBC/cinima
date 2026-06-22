@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎬 电影院网上订票系统</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{--primary:#6c5ce7;--secondary:#fd79a8;--accent:#00cec9;--success:#00b894;--warning:#fdcb6e;--danger:#e17055;--dark:#0a0a1a;--dark2:#12122a;--dark3:#1a1a3e;--card-bg:rgba(255,255,255,0.05);--card-border:rgba(255,255,255,0.08);--text:#e0e0e0;--text-dim:rgba(255,255,255,0.45);--text-muted:rgba(255,255,255,0.6);--radius:12px;--radius-sm:8px;--shadow:0 8px 32px rgba(0,0,0,0.3);--transition:all 0.3s cubic-bezier(0.4,0,0.2,1)}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.6}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--dark)}
+::-webkit-scrollbar-thumb{background:var(--primary);border-radius:3px}
+.container{max-width:1280px;margin:0 auto;padding:0 20px}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,26,0.92);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);transition:var(--transition)}
+.navbar .container{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;height:64px}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-size:20px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-brand i{font-size:24px}
+.nav-menu{display:flex;gap:4px}
+.nav-link{text-decoration:none;color:var(--text-dim);font-weight:500;padding:8px 14px;border-radius:var(--radius-sm);transition:var(--transition);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.nav-link:hover,.nav-link.active{color:#fff;background:rgba(108,92,231,0.15)}
+.nav-link.admin-only{display:flex}
+.nav-auth{display:flex;align-items:center;gap:10px}
+.nav-toggle{display:none;background:none;border:none;color:#fff;font-size:22px;cursor:pointer}
+.btn{padding:10px 24px;border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:14px;font-weight:600;transition:var(--transition);display:inline-flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap}
+.btn:active{transform:scale(0.97)}
+.btn-primary{background:linear-gradient(135deg,var(--primary),#a29bfe);color:#fff}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(108,92,231,0.4)}
+.btn-outline{background:transparent;border:2px solid rgba(255,255,255,0.2);color:#fff}
+.btn-outline:hover{border-color:var(--primary);background:rgba(108,92,231,0.15)}
+.btn-success{background:linear-gradient(135deg,var(--success),#55efc4);color:#0a0a1a}
+.btn-success:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,184,148,0.4)}
+.btn-danger{background:linear-gradient(135deg,var(--danger),#fd79a8);color:#fff}
+.btn-sm{padding:6px 14px;font-size:13px}
+.btn-lg{padding:14px 36px;font-size:16px}
+.btn-block{width:100%;justify-content:center}
+.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none!important}
+.hero{padding:140px 0 80px;background:linear-gradient(135deg,rgba(108,92,231,0.15),rgba(0,0,0,0.8)),radial-gradient(ellipse at 20% 50%,rgba(108,92,231,0.2) 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,rgba(253,121,168,0.1) 0%,transparent 50%);position:relative;overflow:hidden;min-height:100vh;display:flex;align-items:center}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236c5ce7' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+.hero-content{text-align:center;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border-radius:50px;background:rgba(108,92,231,0.15);border:1px solid rgba(108,92,231,0.3);font-size:13px;color:var(--primary);margin-bottom:24px}
+.hero-title{font-size:clamp(32px,5vw,56px);font-weight:800;margin-bottom:16px;line-height:1.2;background:linear-gradient(135deg,#fff,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-subtitle{font-size:clamp(16px,2vw,20px);color:var(--text-muted);margin-bottom:40px;max-width:600px;margin-left:auto;margin-right:auto}
+.hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.hero-stats{display:flex;justify-content:center;gap:40px;margin-top:50px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-value{font-size:32px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-stat-label{font-size:13px;color:var(--text-dim);margin-top:4px}
+.section{padding:80px 0}
+.section-header{text-align:center;margin-bottom:50px}
+.section-tag{display:inline-block;padding:4px 14px;border-radius:50px;background:rgba(108,92,231,0.1);border:1px solid rgba(108,92,231,0.2);font-size:12px;color:var(--primary);margin-bottom:12px;text-transform:uppercase;letter-spacing:2px}
+.section-title{font-size:clamp(24px,3vw,36px);font-weight:700;margin-bottom:12px;background:linear-gradient(135deg,#fff,var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.section-subtitle{font-size:16px;color:var(--text-dim);max-width:600px;margin:0 auto}
+.genre-filter{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-bottom:36px}
+.filter-btn{padding:8px 20px;border:2px solid rgba(255,255,255,0.1);background:transparent;color:var(--text-dim);border-radius:50px;cursor:pointer;transition:var(--transition);font-size:13px;font-weight:500}
+.filter-btn.active,.filter-btn:hover{background:linear-gradient(135deg,var(--primary),#a29bfe);border-color:transparent;color:#fff}
+.filter-btn.presale{background:rgba(253,121,168,0.15);border-color:rgba(253,121,168,0.3);color:var(--secondary)}
+.filter-btn.presale.active,.filter-btn.presale:hover{background:linear-gradient(135deg,var(--secondary),#fd79a8);border-color:transparent;color:#fff}
+.movies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
+.movie-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden;transition:var(--transition);cursor:pointer}
+.movie-card:hover{transform:translateY(-8px);border-color:rgba(108,92,231,0.3);box-shadow:var(--shadow)}
+.movie-poster{height:280px;position:relative;overflow:hidden;background:var(--dark2)}
+.movie-poster img{width:100%;height:100%;object-fit:cover;transition:var(--transition)}
+.movie-card:hover .movie-poster img{transform:scale(1.08)}
+.movie-poster .movie-rating-badge{position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:20px;background:rgba(0,0,0,0.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:13px;font-weight:600;color:var(--warning);display:flex;align-items:center;gap:4px;z-index:2}
+.movie-poster .movie-overlay{position:absolute;bottom:0;left:0;right:0;padding:12px;background:linear-gradient(transparent,rgba(0,0,0,0.8));display:flex;gap:8px;z-index:2;opacity:0;transition:var(--transition)}
+.movie-card:hover .movie-overlay{opacity:1}
+.movie-poster .status-badge-abs{position:absolute;top:12px;left:12px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;z-index:3;display:flex;align-items:center;gap:4px}
+.movie-poster .status-badge-abs.presale{background:linear-gradient(135deg,var(--secondary),#fd79a8);color:#fff;box-shadow:0 4px 15px rgba(253,121,168,0.4)}
+.movie-poster .status-badge-abs.showing{background:linear-gradient(135deg,var(--success),#55efc4);color:#0a0a1a}
+.movie-poster .status-badge-abs.ended{background:rgba(255,255,255,0.1);color:var(--text-dim)}
+.movie-info{padding:20px}
+.movie-title{font-size:18px;font-weight:600;margin-bottom:8px;color:#fff}
+.movie-title .presale-tag{display:inline-block;font-size:10px;background:linear-gradient(135deg,var(--secondary),#fd79a8);color:#fff;padding:2px 8px;border-radius:10px;margin-left:6px;vertical-align:middle;font-weight:600}
+.movie-meta{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.movie-genre{padding:2px 10px;border-radius:20px;font-size:12px;font-weight:500;background:rgba(108,92,231,0.15);color:var(--primary)}
+.movie-duration{font-size:13px;color:var(--text-dim)}
+.movie-desc{font-size:13px;color:var(--text-dim);margin-bottom:14px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.movie-footer{display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid var(--card-border);gap:8px;flex-wrap:wrap}
+.movie-footer .btn-group{display:flex;gap:6px}
+.movie-price{font-size:20px;font-weight:700;color:var(--primary)}
+.movie-price small{font-size:13px;font-weight:400;color:var(--text-dim)}
+.movie-price .presale-hint{font-size:11px;color:var(--secondary);font-weight:400;display:block}
+.booking-container{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:40px}
+.booking-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:16px}
+.booking-movie-select{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.booking-movie-select select,.booking-movie-select input{padding:10px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius-sm);color:#fff;font-size:14px;transition:var(--transition);min-width:160px}
+.booking-movie-select select:focus,.booking-movie-select input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(108,92,231,0.2)}
+.booking-movie-select select option{background:var(--dark3);color:#fff}
+.hall-info{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;padding:16px;background:rgba(0,0,0,0.2);border-radius:var(--radius-sm)}
+.hall-info-item{display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:20px;font-size:13px}
+.hall-info-item.imax{background:rgba(108,92,231,0.15);border:1px solid rgba(108,92,231,0.3);color:var(--primary)}
+.hall-info-item.vip{background:rgba(253,121,168,0.15);border:1px solid rgba(253,121,168,0.3);color:var(--secondary)}
+.hall-info-item.normal{background:rgba(0,206,201,0.15);border:1px solid rgba(0,206,201,0.3);color:var(--accent)}
+.showtime-select{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.showtime-btn{padding:8px 16px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-muted);border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);font-size:13px}
+.showtime-btn:hover,.showtime-btn.active{border-color:var(--primary);background:rgba(108,92,231,0.2);color:#fff}
+.screen-display{text-align:center;margin-bottom:36px}
+.screen-curve{width:70%;height:6px;background:linear-gradient(90deg,transparent,var(--primary),var(--secondary),transparent);margin:0 auto 8px;border-radius:50%;box-shadow:0 0 30px rgba(108,92,231,0.3)}
+.screen-label{font-size:13px;color:var(--text-dim);letter-spacing:6px;text-transform:uppercase}
+.seats-wrapper{display:flex;flex-direction:column;align-items:center;gap:5px;margin-bottom:28px;overflow-x:auto;padding:10px 0}
+.seat-row{display:flex;gap:4px;align-items:center}
+.row-label{width:26px;text-align:center;font-size:11px;color:var(--text-dim);font-weight:500;flex-shrink:0}
+.seat{width:34px;height:34px;border-radius:5px 5px 3px 3px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition);font-size:9px;position:relative;border:2px solid transparent;-webkit-user-select:none;user-select:none}
+.seat::before{content:'';position:absolute;top:0;left:2px;right:2px;height:4px;border-radius:3px 3px 0 0;background:rgba(0,0,0,0.15)}
+.seat.available{background:rgba(0,206,201,0.15);border-color:rgba(0,206,201,0.25);color:rgba(255,255,255,0.5)}
+.seat.available:hover{background:rgba(0,206,201,0.3);transform:scale(1.12);z-index:1}
+.seat.selected{background:linear-gradient(135deg,var(--primary),#a29bfe);border-color:var(--primary);color:#fff;transform:scale(1.05);box-shadow:0 4px 15px rgba(108,92,231,0.4)}
+.seat.sold{background:rgba(225,112,85,0.25);border-color:rgba(225,112,85,0.3);color:rgba(255,255,255,0.25);cursor:not-allowed}
+.seat.locked{background:rgba(253,203,110,0.2);border-color:rgba(253,203,110,0.3);color:rgba(255,255,255,0.35);cursor:not-allowed;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
+.seat.recommended{background:rgba(253,203,110,0.25);border-color:#fdcb6e;color:#fdcb6e;animation:glow 2s infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 5px rgba(253,203,110,0.3)}50%{box-shadow:0 0 15px rgba(253,203,110,0.6)}}
+.seat.vip{background:linear-gradient(135deg,rgba(253,121,168,0.2),rgba(253,121,168,0.1));border-color:rgba(253,121,168,0.3)}
+.seat.vip.available:hover{background:rgba(253,121,168,0.35)}
+.seat.vip.selected{background:linear-gradient(135deg,var(--secondary),#fd79a8);border-color:var(--secondary)}
+.seat.unavailable{background:rgba(255,255,255,0.03);border-color:transparent;color:rgba(255,255,255,0.1);cursor:not-allowed}
+.seat-legend{display:flex;justify-content:center;flex-wrap:wrap;gap:16px;margin-bottom:28px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-dim)}
+.legend-dot{width:16px;height:16px;border-radius:4px;border:2px solid transparent}
+.legend-dot.available{background:rgba(0,206,201,0.25);border-color:rgba(0,206,201,0.35)}
+.legend-dot.selected{background:linear-gradient(135deg,var(--primary),#a29bfe)}
+.legend-dot.sold{background:rgba(225,112,85,0.35);border-color:rgba(225,112,85,0.4)}
+.legend-dot.locked{background:rgba(253,203,110,0.35);border-color:rgba(253,203,110,0.4)}
+.legend-dot.recommended{background:rgba(253,203,110,0.5);border-color:#fdcb6e}
+.legend-dot.vip{background:rgba(253,121,168,0.35);border-color:rgba(253,121,168,0.4)}
+.booking-summary{display:grid;grid-template-columns:1fr 1fr;gap:24px;background:rgba(0,0,0,0.2);border-radius:var(--radius);padding:28px}
+.summary-info p{margin-bottom:8px;font-size:14px;color:var(--text-muted)}
+.summary-info .total{font-size:22px;font-weight:700;color:var(--primary);margin-top:12px;padding-top:12px;border-top:1px solid var(--card-border)}
+.summary-actions{display:flex;flex-direction:column;gap:10px;justify-content:center}
+.countdown-timer{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(253,203,110,0.15);border:1px solid rgba(253,203,110,0.25);border-radius:20px;font-size:13px;color:var(--warning)}
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
+.rec-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:28px;transition:var(--transition)}
+.rec-card:hover{transform:translateY(-4px);border-color:rgba(108,92,231,0.2)}
+.rec-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.rec-header i{font-size:28px;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(108,92,231,0.1);color:var(--primary)}
+.rec-header h3{font-size:17px;color:#fff}
+.rec-item{padding:10px 0;border-bottom:1px solid var(--card-border);display:flex;align-items:center;gap:12px}
+.rec-item:last-child{border-bottom:none}
+.rec-rank{width:24px;height:24px;border-radius:50%;background:rgba(108,92,231,0.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--primary);flex-shrink:0}
+.rec-name{flex:1;font-size:14px;color:rgba(255,255,255,0.8)}
+.rec-score{font-size:13px;color:var(--warning)}
+.rec-tag{padding:2px 8px;border-radius:10px;font-size:11px;background:rgba(0,206,201,0.15);color:var(--accent)}
+.pricing-factors{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:36px}
+.pricing-factor{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;text-align:center;transition:var(--transition)}
+.pricing-factor:hover{transform:translateY(-4px)}
+.pricing-factor .factor-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:20px;color:#fff}
+.pricing-factor h4{font-size:15px;color:#fff;margin-bottom:8px}
+.pricing-factor p{font-size:12px;color:var(--text-dim);margin-bottom:2px}
+.pricing-calculator{display:grid;grid-template-columns:1fr 1fr;gap:24px;background:rgba(0,0,0,0.2);border-radius:var(--radius);padding:28px}
+.calc-form{display:flex;flex-direction:column;gap:14px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:13px;font-weight:500;color:var(--text-muted)}
+.form-group input,.form-group select{padding:10px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius-sm);color:#fff;font-size:14px;transition:var(--transition)}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(108,92,231,0.2)}
+.form-group select option{background:var(--dark3);color:#fff}
+.form-group input[type="range"]{padding:0;height:6px;-webkit-appearance:none;background:rgba(255,255,255,0.1);border-radius:3px}
+.form-group input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#a29bfe);cursor:pointer}
+.calc-result{background:rgba(255,255,255,0.03);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;justify-content:center}
+.calc-result h4{font-size:15px;color:#fff;margin-bottom:12px}
+.calc-result .price-breakdown{margin-bottom:12px}
+.calc-result .price-breakdown p{font-size:13px;color:var(--text-dim);margin-bottom:4px;display:flex;justify-content:space-between}
+.calc-result .final-price{font-size:28px;font-weight:700;color:var(--primary);padding-top:12px;border-top:1px solid var(--card-border);text-align:center}
+.admin-section{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:28px}
+.admin-tabs{display:flex;gap:4px;margin-bottom:24px;background:rgba(0,0,0,0.2);border-radius:10px;padding:4px;flex-wrap:wrap;overflow-x:auto}
+.admin-tab{padding:10px 18px;border:none;background:transparent;color:var(--text-dim);cursor:pointer;border-radius:var(--radius-sm);transition:var(--transition);font-size:13px;font-weight:500;white-space:nowrap}
+.admin-tab.active,.admin-tab:hover{background:rgba(108,92,231,0.2);color:#fff}
+.admin-panel{display:none}
+.admin-panel.active{display:block}
+.admin-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);padding:18px;text-align:center}
+.stat-card .stat-value{font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-card .stat-label{font-size:12px;color:var(--text-dim);margin-top:4px}
+.admin-table-wrap{overflow-x:auto}
+.admin-table{width:100%;border-collapse:collapse;min-width:600px}
+.admin-table th,.admin-table td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--card-border);font-size:13px}
+.admin-table th{color:var(--text-dim);font-weight:500;font-size:12px;text-transform:uppercase}
+.admin-table td{color:rgba(255,255,255,0.75)}
+.admin-table tr:hover td{background:rgba(255,255,255,0.02)}
+.admin-table .actions{display:flex;gap:4px;flex-wrap:wrap}
+.status-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.status-badge.showing{background:rgba(0,206,201,0.15);color:var(--accent)}
+.status-badge.presale{background:rgba(253,121,168,0.15);color:var(--secondary)}
+.status-badge.ended{background:rgba(225,112,85,0.15);color:var(--danger)}
+.status-badge.pending{background:rgba(253,203,110,0.15);color:var(--warning)}
+.status-badge.completed{background:rgba(0,184,148,0.15);color:var(--success)}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);z-index:2000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.active{display:flex}
+.modal-box{background:linear-gradient(135deg,var(--dark2),var(--dark3));border:1px solid var(--card-border);border-radius:var(--radius);padding:36px;width:100%;max-width:520px;position:relative;animation:modalIn 0.3s ease;max-height:90vh;overflow-y:auto}
+.modal-box.modal-wide{max-width:700px}
+@keyframes modalIn{from{transform:scale(0.92);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text-dim);font-size:22px;cursor:pointer;transition:var(--transition)}
+.modal-close:hover{color:#fff}
+.modal-box h2{font-size:22px;margin-bottom:24px;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.modal-box .form-group{margin-bottom:14px}
+.modal-box .form-group label{font-size:13px;color:var(--text-dim)}
+.modal-box .form-group input,.modal-box .form-group select,.modal-box .form-group textarea{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius-sm);padding:11px 14px;color:#fff;font-size:14px}
+.modal-box .form-group textarea{resize:vertical;min-height:60px;font-family:inherit}
+.modal-box .form-group input:focus,.modal-box .form-group textarea:focus{outline:none;border-color:var(--primary)}
+.modal-box .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.modal-box .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.modal-footer{text-align:center;margin-top:18px;font-size:13px;color:var(--text-dim)}
+.modal-footer a{color:var(--primary);text-decoration:none;cursor:pointer}
+.login-tabs{display:flex;margin-bottom:24px;background:rgba(0,0,0,0.2);border-radius:10px;padding:4px}
+.login-tab{flex:1;padding:10px;border:none;background:transparent;color:var(--text-dim);cursor:pointer;border-radius:var(--radius-sm);transition:var(--transition);font-size:14px;font-weight:500;text-align:center}
+.login-tab.active,.login-tab:hover{background:rgba(108,92,231,0.2);color:#fff}
+.login-panel{display:none}
+.login-panel.active{display:block}
+.toast-container{position:fixed;top:80px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 18px;border-radius:var(--radius-sm);color:#fff;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;animation:slideIn 0.3s ease;min-width:260px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.toast.success{background:linear-gradient(135deg,var(--success),#55efc4);color:#0a0a1a}
+.toast.error{background:linear-gradient(135deg,var(--danger),#fd79a8)}
+.toast.info{background:linear-gradient(135deg,#74b9ff,#a29bfe)}
+.toast.warning{background:linear-gradient(135deg,var(--warning),#f39c12);color:#0a0a1a}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.footer{padding:60px 0 30px;border-top:1px solid var(--card-border);margin-top:40px}
+.footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:32px;margin-bottom:32px}
+.footer-col h4{font-size:15px;color:#fff;margin-bottom:14px}
+.footer-col p,.footer-col a{font-size:13px;color:var(--text-dim);margin-bottom:6px;display:block;text-decoration:none;transition:var(--transition)}
+.footer-col a:hover{color:var(--primary)}
+.footer-bottom{text-align:center;padding-top:20px;border-top:1px solid var(--card-border);font-size:12px;color:rgba(255,255,255,0.2)}
+.movie-detail-modal .modal-box{max-width:700px;padding:0;overflow:hidden}
+.movie-detail-header{position:relative;height:320px;overflow:hidden}
+.movie-detail-header .poster-bg{width:100%;height:100%;position:relative;display:flex;align-items:center;justify-content:center}
+.movie-detail-header .poster-bg .poster-icon{font-size:80px;opacity:0.3;position:absolute}
+.movie-detail-header .detail-overlay{position:absolute;bottom:0;left:0;right:0;padding:24px;background:linear-gradient(transparent,rgba(0,0,0,0.9));z-index:2}
+.movie-detail-header .detail-title{font-size:28px;font-weight:700;color:#fff;margin-bottom:8px}
+.movie-detail-header .detail-meta{display:flex;gap:12px;flex-wrap:wrap}
+.movie-detail-body{padding:28px}
+.detail-section{margin-bottom:20px}
+.detail-section:last-child{margin-bottom:0}
+.detail-section h3{font-size:15px;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.detail-section p{font-size:14px;color:rgba(255,255,255,0.75);line-height:1.8}
+.detail-actors{display:flex;gap:12px;flex-wrap:wrap}
+.detail-actor{text-align:center;width:80px}
+.detail-actor .avatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:24px;color:#fff;border:2px solid var(--card-border)}
+.detail-actor span{display:block;font-size:12px;color:var(--text-dim);margin-top:4px}
+.detail-tag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;background:rgba(108,92,231,0.15);color:var(--primary);margin:2px}
+.detail-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.detail-info-item{padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:6px}
+.detail-info-item .label{font-size:12px;color:var(--text-dim)}
+.detail-info-item .value{font-size:14px;color:#fff;font-weight:500}
+@media(max-width:992px){
+  .nav-menu{display:none}
+  .nav-toggle{display:block}
+  .nav-menu.open{display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:rgba(10,10,26,0.98);padding:20px;gap:4px}
+  .hero-title{font-size:36px}
+  .booking-summary,.pricing-calculator{grid-template-columns:1fr}
+  .modal-box .form-row,.modal-box .form-row-3{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  .hero-title{font-size:28px}
+  .hero-subtitle{font-size:16px}
+  .section-title{font-size:28px}
+  .seat{width:28px;height:28px;font-size:8px}
+  .seat-row{gap:2px}
+  .booking-container{padding:20px}
+  .admin-stats{grid-template-columns:repeat(2,1fr)}
+  .movie-detail-header{height:220px}
+}
+@media(max-width:480px){
+  .container{padding:0 12px}
+  .hero-title{font-size:24px}
+  .seat{width:24px;height:24px;font-size:7px}
+  .seat-row{gap:1px}
+  .row-label{width:18px;font-size:9px}
+  .movies-grid{grid-template-columns:1fr}
+  .detail-info-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="#" class="nav-brand"><i class="fas fa-film"></i> 电影院订票系统</a>
+    <div class="nav-menu" id="navMenu">
+      <a class="nav-link active" onclick="scrollToSection('home')"><i class="fas fa-home"></i> 首页</a>
+      <a class="nav-link" onclick="scrollToSection('movies')"><i class="fas fa-video"></i> 电影</a>
+      <a class="nav-link" onclick="scrollToSection('booking')"><i class="fas fa-ticket-alt"></i> 订票</a>
+      <a class="nav-link" onclick="scrollToSection('recommendations')"><i class="fas fa-star"></i> 推荐</a>
+      <a class="nav-link admin-only" id="navPricing" onclick="scrollToSection('pricing')" style="display:none"><i class="fas fa-chart-line"></i> 定价</a>
+      <a class="nav-link admin-only" id="navAdmin" onclick="scrollToSection('admin')" style="display:none"><i class="fas fa-cog"></i> 管理</a>
+    </div>
+    <div class="nav-auth">
+      <button class="btn btn-outline btn-sm" id="loginBtn"><i class="fas fa-sign-in-alt"></i> 登录</button>
+      <button class="btn btn-primary btn-sm" id="registerBtn"><i class="fas fa-user-plus"></i> 注册</button>
+      <div id="userInfo" style="display:none;align-items:center;gap:8px;">
+        <span id="userNameDisplay" style="font-size:14px;color:rgba(255,255,255,0.8)"></span>
+        <span id="userRoleBadge" style="padding:2px 8px;border-radius:10px;font-size:11px;background:rgba(108,92,231,0.15);color:var(--primary);display:none;"></span>
+        <button class="btn btn-danger btn-sm" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> 退出</button>
+      </div>
+    </div>
+    <button class="nav-toggle" id="navToggle"><i class="fas fa-bars"></i></button>
+  </div>
+</nav>
+<div class="toast-container" id="toastContainer"></div>
+
+<section class="hero" id="home">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge"><i class="fas fa-rocket"></i> 全新升级 · 智能观影体验</div>
+      <h1 class="hero-title">电影院网上订票系统</h1>
+      <p class="hero-subtitle">创新智能推荐座位系统 · 动态定价算法 · 6大影厅随心选座 · 高效出票体验</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary btn-lg" onclick="scrollToSection('booking')"><i class="fas fa-ticket-alt"></i> 立即订票</button>
+        <button class="btn btn-outline btn-lg" onclick="scrollToSection('movies')"><i class="fas fa-video"></i> 浏览电影</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-value" id="heroMovieCount">15+</div><div class="hero-stat-label">热映影片</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">6</div><div class="hero-stat-label">主题影厅</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">99%</div><div class="hero-stat-label">出票成功率</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">30s</div><div class="hero-stat-label">极速出票</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="movies">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag"><i class="fas fa-video"></i> <span id="movieSectionLabel">正在热映</span></div>
+      <h2 class="section-title" id="movieSectionTitle">15部精选影片</h2>
+      <p class="section-subtitle" id="movieSectionSubtitle">每部影片提供3-5个场次，6大主题影厅供您选择</p>
+    </div>
+    <div class="genre-filter" id="genreFilter">
+      <button class="filter-btn active" data-genre="all">全部</button>
+      <button class="filter-btn" data-genre="科幻">科幻</button>
+      <button class="filter-btn" data-genre="动画">动画</button>
+      <button class="filter-btn" data-genre="剧情">剧情</button>
+      <button class="filter-btn" data-genre="喜剧">喜剧</button>
+      <button class="filter-btn" data-genre="悬疑">悬疑</button>
+      <button class="filter-btn" data-genre="战争">战争</button>
+      <button class="filter-btn" data-genre="奇幻">奇幻</button>
+      <button class="filter-btn" data-genre="犯罪">犯罪</button>
+      <button class="filter-btn presale" id="presaleFilterBtn" data-genre="presale" style="display:none">🔥 预售</button>
+    </div>
+    <div class="movies-grid" id="moviesGrid"></div>
+  </div>
+</section>
+
+<section class="section" id="booking">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag"><i class="fas fa-ticket-alt"></i> 在线选座</div>
+      <h2 class="section-title">可视化选座 · 智能推荐座位</h2>
+      <p class="section-subtitle">直观的座位图展示，系统根据时段智能推荐最佳观影位置</p>
+    </div>
+    <div class="booking-container">
+      <div class="booking-header">
+        <div class="booking-movie-select">
+          <select id="movieSelect"><option value="">请选择电影</option></select>
+          <input type="date" id="showDate" min="">
+        </div>
+        <div class="countdown-timer" id="countdownTimer" style="display:none;">
+          <i class="fas fa-clock"></i> 座位锁定剩余: <span id="countdownDisplay">30:00</span>
+        </div>
+      </div>
+      <div class="hall-info">
+        <span class="hall-info-item imax"><i class="fas fa-star"></i> 1号厅 - IMAX厅 (¥+30%)</span>
+        <span class="hall-info-item vip"><i class="fas fa-crown"></i> 2号厅 - VIP厅 (¥+50%)</span>
+        <span class="hall-info-item vip"><i class="fas fa-crown"></i> 3号厅 - VIP厅 (¥+50%)</span>
+        <span class="hall-info-item normal"><i class="fas fa-building"></i> 4号厅 - 普通厅 (基准价)</span>
+        <span class="hall-info-item normal"><i class="fas fa-building"></i> 5号厅 - 普通厅 (基准价)</span>
+        <span class="hall-info-item normal"><i class="fas fa-building"></i> 6号厅 - 普通厅 (基准价)</span>
+      </div>
+      <div style="margin-bottom:12px;"><strong style="color:var(--text-muted);font-size:14px;">选择场次与影厅:</strong></div>
+      <div id="showtimeContainer" class="showtime-select"></div>
+      <div class="screen-display">
+        <div class="screen-curve"></div>
+        <div class="screen-label" id="currentHallLabel">1号厅 IMAX 银幕</div>
+      </div>
+      <div class="seats-wrapper" id="seatsContainer"></div>
+      <div class="seat-legend">
+        <div class="legend-item"><div class="legend-dot available"></div>可选</div>
+        <div class="legend-item"><div class="legend-dot selected"></div>已选</div>
+        <div class="legend-item"><div class="legend-dot sold"></div>已售</div>
+        <div class="legend-item"><div class="legend-dot locked"></div>锁定中</div>
+        <div class="legend-item"><div class="legend-dot recommended"></div>智能推荐</div>
+        <div class="legend-item"><div class="legend-dot vip"></div>VIP座</div>
+      </div>
+      <div class="booking-summary">
+        <div class="summary-info">
+          <p>已选座位: <strong id="selectedSeatsCount">0</strong> 个</p>
+          <p>座位编号: <strong id="selectedSeatsList">无</strong></p>
+          <p>影厅: <strong id="selectedHall">未选择</strong></p>
+          <p>场次: <strong id="selectedShowtime">未选择</strong></p>
+          <p>票价: ¥<strong id="ticketPrice">0.00</strong> / 张</p>
+          <p>服务费: ¥<strong>3.00</strong> / 张</p>
+          <div class="total">总计: ¥<span id="totalAmount">0.00</span></div>
+        </div>
+        <div class="summary-actions">
+          <button class="btn btn-primary btn-lg btn-block" id="confirmBookingBtn"><i class="fas fa-check-circle"></i> 确认选座支付</button>
+          <button class="btn btn-outline btn-block" id="clearSeatsBtn"><i class="fas fa-undo"></i> 清除选择</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="recommendations">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag"><i class="fas fa-star"></i> 智能推荐</div>
+      <h2 class="section-title">个性化影片推荐 · 智能座位推荐</h2>
+      <p class="section-subtitle">创新智能推荐算法：根据时间段推荐最佳座位，根据您的偏好推荐影片</p>
+    </div>
+    <div class="rec-grid">
+      <div class="rec-card"><div class="rec-header"><i class="fas fa-users"></i><h3>协同过滤推荐</h3></div><div id="collaborativeRec"></div></div>
+      <div class="rec-card"><div class="rec-header"><i class="fas fa-tag"></i><h3>基于内容推荐</h3></div><div id="contentRec"></div></div>
+      <div class="rec-card"><div class="rec-header"><i class="fas fa-clock"></i><h3>时间感知推荐</h3></div><div id="timeRec"></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section admin-only" id="pricing" style="display:none;">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag"><i class="fas fa-chart-line"></i> 管理员专享</div>
+      <h2 class="section-title">动态定价系统</h2>
+      <p class="section-subtitle">根据时间段、上座率、影厅类型等多维因素，动态调整影片价格</p>
+    </div>
+    <div class="pricing-factors">
+      <div class="pricing-factor"><div class="factor-icon" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe)"><i class="fas fa-clock"></i></div><h4>时段因素</h4><p>早间(09-12点): -10%</p><p>下午(12-18点): 基准价</p><p>晚间(18-22点): +15%</p><p>深夜(22点后): +5%</p></div>
+      <div class="pricing-factor"><div class="factor-icon" style="background:linear-gradient(135deg,#fd79a8,#e17055)"><i class="fas fa-chair"></i></div><h4>上座率</h4><p>高上座率 >80%: +10%</p><p>低上座率 <30%: -15%</p><p>中等上座率: 基准价</p></div>
+      <div class="pricing-factor"><div class="factor-icon" style="background:linear-gradient(135deg,#00cec9,#00b894)"><i class="fas fa-building"></i></div><h4>影厅类型</h4><p>普通厅(4/5/6号厅): 基准价</p><p>IMAX厅(1号厅): +30%</p><p>VIP厅(2/3号厅): +50%</p></div>
+      <div class="pricing-factor"><div class="factor-icon" style="background:linear-gradient(135deg,#fdcb6e,#f39c12)"><i class="fas fa-calendar-alt"></i></div><h4>特殊日期</h4><p>节假日: +20%</p><p>周末: +5%</p><p>平日: 基准价</p></div>
+    </div>
+    <div class="pricing-calculator">
+      <div class="calc-form">
+        <h4 style="color:#fff;margin-bottom:8px;font-size:16px;">票价计算器</h4>
+        <div class="form-group"><label>基础票价 (¥)</label><input type="number" id="basePrice" value="45" min="10" max="200"></div>
+        <div class="form-group"><label>放映时段</label><select id="showTime"><option value="morning">早间 (09:00-12:00)</option><option value="afternoon" selected>下午 (12:00-18:00)</option><option value="evening">晚间 (18:00-22:00)</option><option value="late">深夜 (22:00+)</option></select></div>
+        <div class="form-group"><label>上座率: <span id="occupancyValue">50%</span></label><input type="range" id="occupancyRate" min="0" max="100" value="50"></div>
+        <div class="form-group"><label>影厅类型</label><select id="hallType"><option value="normal">普通厅 (4/5/6号厅)</option><option value="imax">IMAX厅 (1号厅)</option><option value="vip">VIP厅 (2/3号厅)</option></select></div>
+        <div class="form-group" style="display:flex;flex-direction:row;gap:20px;align-items:center;"><label style="flex-direction:row;gap:8px;align-items:center;cursor:pointer;"><input type="checkbox" id="isHoliday"> 节假日</label><label style="flex-direction:row;gap:8px;align-items:center;cursor:pointer;"><input type="checkbox" id="isWeekend"> 周末</label></div>
+        <button class="btn btn-primary btn-block" id="calculatePriceBtn"><i class="fas fa-calculator"></i> 计算票价</button>
+      </div>
+      <div class="calc-result">
+        <h4>价格明细</h4>
+        <div class="price-breakdown"><p><span>基础票价:</span> <span>¥<span id="calcBasePrice">45.00</span></span></p><p><span>时段调整:</span> <span><span id="calcTimeAdjust">0%</span></span></p><p><span>上座率调整:</span> <span><span id="calcOccupancyAdjust">0%</span></span></p><p><span>影厅调整:</span> <span><span id="calcHallAdjust">0%</span></span></p><p><span>节假日调整:</span> <span><span id="calcHolidayAdjust">0%</span></span></p><p><span>周末调整:</span> <span><span id="calcWeekendAdjust">0%</span></span></p></div>
+        <div class="final-price">¥<span id="calcFinalPrice">45.00</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section admin-only" id="admin" style="display:none;">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag"><i class="fas fa-cog"></i> 管理员专享</div>
+      <h2 class="section-title">后台管理系统</h2>
+      <p class="section-subtitle">影片管理 · 排片管理 · 预售管理 · 票房统计 · 系统运营</p>
+    </div>
+    <div class="admin-section" id="adminSection">
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="overview"><i class="fas fa-tachometer-alt"></i> 概览</button>
+        <button class="admin-tab" data-tab="movies"><i class="fas fa-film"></i> 排片管理</button>
+        <button class="admin-tab" data-tab="movieManage"><i class="fas fa-edit"></i> 影片管理</button>
+        <button class="admin-tab" data-tab="orders"><i class="fas fa-file-invoice"></i> 订单管理</button>
+        <button class="admin-tab" data-tab="stats"><i class="fas fa-chart-bar"></i> 票房统计</button>
+        <button class="admin-tab" data-tab="users"><i class="fas fa-users"></i> 用户分析</button>
+        <button class="admin-tab" data-tab="logs"><i class="fas fa-clipboard-list"></i> 系统日志</button>
+      </div>
+      <div class="admin-panel active" id="panel-overview"><div class="admin-stats" id="adminStats"></div><div style="margin-top:16px;"><h4 style="color:#fff;font-size:15px;margin-bottom:12px;">系统运行状态</h4><div id="systemStatus" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;"></div></div></div>
+      <div class="admin-panel" id="panel-movies"><div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;"><h4 style="color:#fff;font-size:15px;">当前排片列表</h4></div><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>电影名称</th><th>类型</th><th>放映厅</th><th>时间</th><th>价格</th><th>上座率</th><th>状态</th></tr></thead><tbody id="scheduleTable"></tbody></table></div></div>
+      <div class="admin-panel" id="panel-movieManage">
+        <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <h4 style="color:#fff;font-size:15px;">影片库管理 <small style="font-weight:400;color:var(--text-dim);font-size:13px;">(增删改查 · 预售管理 · 放映周期)</small></h4>
+          <button class="btn btn-success btn-sm" onclick="showAddMovieModal()"><i class="fas fa-plus"></i> 添加新电影</button>
+        </div>
+        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>ID</th><th>电影名称</th><th>类型</th><th>评分</th><th>价格</th><th>状态</th><th>放映天数</th><th>截止日期</th><th>操作</th></tr></thead><tbody id="movieManageTable"></tbody></table></div>
+        <div style="margin-top:16px;padding:16px;background:rgba(0,0,0,0.15);border-radius:var(--radius-sm);"><p style="font-size:13px;color:var(--text-dim);"><i class="fas fa-info-circle" style="color:var(--accent)"></i> 管理员操作提示：<br>① 点击"添加新电影"可录入新影片，设定预售/上映状态和放映天数<br>② 点击"下架"可将影片标记为已结束，用户将无法看到<br>③ 点击"预售"可将影片设为预上映状态，用户可看到预售标签<br>④ 放映天数到期后系统自动标记为已结束</p></div>
+      </div>
+      <div class="admin-panel" id="panel-orders"><div style="margin-bottom:16px;"><h4 style="color:#fff;font-size:15px;">订单列表</h4></div><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>订单号</th><th>用户</th><th>电影</th><th>影厅</th><th>座位</th><th>金额</th><th>状态</th><th>时间</th></tr></thead><tbody id="orderTable"></tbody></table></div></div>
+      <div class="admin-panel" id="panel-stats"><div class="admin-stats" id="boxOfficeStats"></div><div style="margin-top:16px;"><h4 style="color:#fff;font-size:15px;margin-bottom:12px;">票房排名</h4><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>排名</th><th>电影名称</th><th>类型</th><th>总票房</th><th>售出票数</th><th>上座率</th></tr></thead><tbody id="boxOfficeRanking"></tbody></table></div></div></div>
+      <div class="admin-panel" id="panel-users"><div class="admin-stats" id="userStats"></div><div style="margin-top:16px;"><h4 style="color:#fff;font-size:15px;margin-bottom:12px;">用户行为分析</h4><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;" id="userBehavior"></div></div></div>
+      <div class="admin-panel" id="panel-logs"><div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;"><h4 style="color:#fff;font-size:15px;">系统操作日志</h4><div><select id="logLevel" style="padding:6px 12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:#fff;font-size:13px;"><option value="all">全部级别</option><option value="info">信息</option><option value="warning">警告</option><option value="error">错误</option></select></div></div><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>时间</th><th>级别</th><th>模块</th><th>内容</th><th>用户</th></tr></thead><tbody id="logTable"></tbody></table></div></div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col"><h4><i class="fas fa-film" style="color:var(--primary)"></i> 电影院网上订票系统</h4><p>采用分层架构设计，创新集成智能推荐座位、动态定价算法。6大主题影厅，影片随心选。</p></div>
+      <div class="footer-col"><h4>快速链接</h4><a href="#" onclick="scrollToSection('home')">首页</a><a href="#" onclick="scrollToSection('movies')">电影列表</a><a href="#" onclick="scrollToSection('booking')">在线选座</a><a href="#" onclick="scrollToSection('recommendations')">智能推荐</a></div>
+      <div class="footer-col"><h4>关于我们</h4><p><i class="fas fa-layer-group" style="color:var(--primary)"></i> 分层架构设计</p><p><i class="fas fa-lightbulb" style="color:var(--warning)"></i> 智能推荐座位系统</p><p><i class="fas fa-chart-line" style="color:var(--accent)"></i> 动态定价算法</p><p><i class="fas fa-lock" style="color:var(--success)"></i> 并发锁座防止超售</p></div>
+      <div class="footer-col"><h4>联系我们</h4><p><i class="fas fa-phone"></i> 客服热线: 400-888-8888</p><p><i class="fas fa-envelope"></i> 邮箱: support@cinema.com</p><p><i class="fas fa-map-marker-alt"></i> 地址: 北京市朝阳区电影大厦</p></div>
+    </div>
+    <div class="footer-bottom"><p>&copy; 2026 电影院网上订票系统 - 创新智能推荐 · 动态定价 · 毕业设计</p></div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="hideModal('loginModal')">&times;</button>
+    <h2><i class="fas fa-sign-in-alt"></i> 登录</h2>
+    <div class="login-tabs">
+      <button class="login-tab active" data-login="user"><i class="fas fa-user"></i> 用户登录</button>
+      <button class="login-tab" data-login="admin"><i class="fas fa-shield-alt"></i> 管理员登录</button>
+    </div>
+    <div class="login-panel active" id="loginUserPanel">
+      <form id="loginForm"><div class="form-group"><label><i class="fas fa-user"></i> 用户名</label><input type="text" id="loginUsername" placeholder="请输入用户名" required></div><div class="form-group"><label><i class="fas fa-lock"></i> 密码</label><input type="password" id="loginPassword" placeholder="请输入密码" required></div><button type="submit" class="btn btn-primary btn-block btn-lg"><i class="fas fa-sign-in-alt"></i> 用户登录</button></form>
+      <div class="modal-footer">还没有账号？<a onclick="switchModal('registerModal','loginModal')">立即注册</a></div>
+    </div>
+    <div class="login-panel" id="loginAdminPanel">
+      <form id="loginAdminForm"><div class="form-group"><label><i class="fas fa-user-shield"></i> 管理员账号</label><input type="text" id="loginAdminUsername" placeholder="请输入管理员账号" value="admin"></div><div class="form-group"><label><i class="fas fa-lock"></i> 管理员密码</label><input type="password" id="loginAdminPassword" placeholder="请输入管理员密码" value="admin123"></div><button type="submit" class="btn btn-danger btn-block btn-lg"><i class="fas fa-shield-alt"></i> 管理员登录</button></form>
+      <div class="modal-footer" style="color:var(--warning);font-size:12px;"><i class="fas fa-info-circle"></i> 管理员预置账号: admin / admin123</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="registerModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="hideModal('registerModal')">&times;</button>
+    <h2><i class="fas fa-user-plus"></i> 用户注册</h2>
+    <form id="registerForm"><div class="form-group"><label><i class="fas fa-user"></i> 用户名</label><input type="text" id="registerUsername" placeholder="请输入用户名" required></div><div class="form-group"><label><i class="fas fa-envelope"></i> 邮箱</label><input type="email" id="registerEmail" placeholder="请输入邮箱" required></div><div class="form-group"><label><i class="fas fa-lock"></i> 密码</label><input type="password" id="registerPassword" placeholder="请输入密码" required></div><div class="form-group"><label><i class="fas fa-check-circle"></i> 确认密码</label><input type="password" id="registerConfirmPassword" placeholder="请确认密码" required></div><button type="submit" class="btn btn-primary btn-block btn-lg"><i class="fas fa-user-plus"></i> 注册</button></form>
+    <div class="modal-footer">已有账号？<a onclick="switchModal('loginModal','registerModal')">立即登录</a></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal-box" style="max-width:520px;">
+    <button class="modal-close" onclick="cancelPayment()">&times;</button>
+    <h2><i class="fas fa-credit-card"></i> 确认支付</h2>
+    <div style="background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);padding:20px;margin-bottom:20px;">
+      <p style="font-size:14px;color:var(--text-dim);margin-bottom:6px;">订单号: <strong id="paymentOrderNum" style="color:#fff;"></strong></p>
+      <p style="font-size:14px;color:var(--text-dim);margin-bottom:6px;">电影: <strong id="paymentMovie" style="color:#fff;"></strong></p>
+      <p style="font-size:14px;color:var(--text-dim);margin-bottom:6px;">影厅: <strong id="paymentHall" style="color:#fff;"></strong></p>
+      <p style="font-size:14px;color:var(--text-dim);margin-bottom:6px;">场次: <strong id="paymentShowtime" style="color:#fff;"></strong></p>
+      <p style="font-size:14px;color:var(--text-dim);margin-bottom:6px;">座位: <strong id="paymentSeats" style="color:#fff;"></strong></p>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;margin-top:12px;border-top:1px solid var(--card-border);"><span style="font-size:14px;color:var(--text-dim);">合计金额</span><span style="font-size:28px;font-weight:700;color:var(--primary);">¥<span id="paymentAmount">0.00</span></span></div>
+    </div>
+    <div style="margin-bottom:20px;"><p style="font-size:13px;color:var(--text-dim);margin-bottom:10px;">选择支付方式</p><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;"><button class="btn btn-outline btn-sm payment-method active" data-method="alipay" style="justify-content:center;padding:12px;"><i class="fab fa-alipay" style="font-size:20px;color:#00a1e9;"></i> 支付宝</button><button class="btn btn-outline btn-sm payment-method" data-method="wechat" style="justify-content:center;padding:12px;"><i class="fab fa-weixin" style="font-size:20px;color:#07c160;"></i> 微信</button><button class="btn btn-outline btn-sm payment-method" data-method="bank" style="justify-content:center;padding:12px;"><i class="fas fa-university" style="font-size:20px;color:var(--primary));"></i> 银行卡</button></div></div>
+    <button class="btn btn-success btn-lg btn-block" id="payNowBtn"><i class="fas fa-check-circle"></i> 立即支付</button>
+    <p style="text-align:center;margin-top:12px;font-size:12px;color:var(--text-dim);"><i class="fas fa-clock"></i> 订单将在 <span id="paymentCountdown" style="color:var(--warning);font-weight:600;">30:00</span> 后自动取消</p>
+  </div>
+</div>
+
+<div class="modal-overlay movie-detail-modal" id="movieDetailModal">
+  <div class="modal-box" style="max-width:700px;padding:0;">
+    <button class="modal-close" onclick="hideModal('movieDetailModal')" style="z-index:10;color:#fff;background:rgba(0,0,0,0.4);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:18px;">&times;</button>
+    <div id="movieDetailContent"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addMovieModal">
+  <div class="modal-box modal-wide">
+    <button class="modal-close" onclick="hideModal('addMovieModal')">&times;</button>
+    <h2><i class="fas fa-plus-circle"></i> 添加新电影</h2>
+    <form id="addMovieForm">
+      <div class="form-row">
+        <div class="form-group"><label>电影名称 *</label><input type="text" id="am_title" placeholder="如：流浪地球3" required></div>
+        <div class="form-group"><label>电影类型 *</label><select id="am_genre" required><option value="">选择类型</option><option value="科幻">科幻</option><option value="动画">动画</option><option value="剧情">剧情</option><option value="喜剧">喜剧</option><option value="悬疑">悬疑</option><option value="战争">战争</option><option value="奇幻">奇幻</option><option value="犯罪">犯罪</option><option value="爱情">爱情</option><option value="动作">动作</option></select></div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group"><label>评分</label><input type="number" id="am_rating" value="8.0" min="0" max="10" step="0.1"></div>
+        <div class="form-group"><label>时长</label><input type="text" id="am_duration" placeholder="如：120分钟" value="120分钟"></div>
+        <div class="form-group"><label>基础票价 ¥</label><input type="number" id="am_price" value="45" min="10" max="200"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>状态 *</label><select id="am_status" required><option value="showing">正在上映</option><option value="presale">预上映（预售）</option></select></div>
+        <div class="form-group"><label>放映天数</label><select id="am_days"><option value="7">7天</option><option value="15" selected>15天</option><option value="30">30天</option><option value="45">45天</option><option value="60">60天</option><option value="90">90天</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>导演</label><input type="text" id="am_director" placeholder="导演名"></div>
+        <div class="form-group"><label>上映日期</label><input type="text" id="am_release" placeholder="如：2026年暑期"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>演员（逗号分隔）</label><input type="text" id="am_actors" placeholder="如：吴京,刘德华,李雪健"></div>
+        <div class="form-group"><label>主题图标（emoji）</label><input type="text" id="am_icon" placeholder="如：🚀" value="🎬"></div>
+      </div>
+      <div class="form-group"><label>简介</label><textarea id="am_desc" rows="3" placeholder="请输入电影简介"></textarea></div>
+      <div style="display:flex;gap:10px;margin-top:10px;">
+        <button type="submit" class="btn btn-success btn-lg btn-block"><i class="fas fa-check"></i> 确认添加</button>
+        <button type="button" class="btn btn-outline btn-lg btn-block" onclick="hideModal('addMovieModal')"><i class="fas fa-times"></i> 取消</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// ============================================================================
+// 数据定义
+// ============================================================================
+const SystemData = {
+  nextId:16,
+  movies: [
+    {id:1,title:"流浪地球3",genre:"科幻",rating:9.2,duration:"158分钟",basePrice:55,icon:"🚀",
+     desc:"太阳即将毁灭，人类在地球表面建造出巨大的推进器，寻找新的家园。面对即将到来的危机，各国宇航员和科学家联合起来，展开了一场惊心动魄的救援行动。",
+     actors:["吴京","刘德华","李雪健","沙溢","王智"],director:"郭帆",release:"2026年春节",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"太阳急速衰老膨胀，短时间内将吞没整个太阳系。面对绝境，人类空前团结，在地球表面建造了上万座行星发动机，推动地球逃离太阳系。但在通往新家园的漫长旅途中，人类面临着前所未有的挑战。行星发动机出现故障，地球即将坠入木星。刘培强（吴京 饰）等中国宇航员挺身而出，与各国航天员一起展开了一场拯救地球的生死决战。"},
+    {id:2,title:"哪吒之魔童闹海",genre:"动画",rating:9.0,duration:"132分钟",basePrice:50,icon:"⚡",
+     desc:"天地灵气孕育出一颗能量巨大的混元珠，被提炼成灵珠和魔丸。哪吒虽为魔丸转世，但在父母和师父的帮助下，逆天改命。",
+     actors:["吕艳婷","囧森瑟夫","瀚墨","陈浩","绿绮"],director:"饺子",release:"2026年暑期",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"天地灵气孕育出一颗能量巨大的混元珠，元始天尊将混元珠提炼成灵珠和魔丸。灵珠投胎为人，助周伐纣；魔丸则会诞出魔王，为祸人间。太乙受命将灵珠托生于陈塘关李靖家的儿子哪吒身上。然而阴差阳错，灵珠和魔丸被调包。本应是灵珠英雄的哪吒却成了混世大魔王。面对众人的误解和即将来临的天雷，哪吒奋起反抗，誓要逆天改命！"},
+    {id:3,title:"封神第二部",genre:"奇幻",rating:8.8,duration:"145分钟",basePrice:60,icon:"⚔️",
+     desc:"商王殷寿与狐妖妲己勾结，暴虐无道，引发天谴。姜子牙携封神榜下山，辅佐西伯侯姬发讨伐暴君。",
+     actors:["黄渤","费翔","李雪健","夏雨","陈坤"],director:"乌尔善",release:"2026年暑期",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"商王殷寿（费翔 饰）被狐妖妲己（娜然 饰）迷惑，残害忠良，鱼肉百姓，引发天谴。昆仑仙人姜子牙（黄渤 饰）携封神榜下山，辅佐西伯侯姬发（于适 饰）伐纣。姬发的父亲被殷寿杀害，他怀着满腔怒火，与各路诸侯联合，共同对抗暴政。一场惊心动魄的神魔大战即将展开..."},
+    {id:4,title:"满江红2",genre:"剧情",rating:8.5,duration:"139分钟",basePrice:50,icon:"📜",
+     desc:"南宋绍兴年间，岳飞死后四年，秦桧率兵与金国会谈。一群义士在秦桧府中上演了一出惊天密谋。",
+     actors:["沈腾","易烊千玺","张译","雷佳音","岳云鹏"],director:"张艺谋",release:"2025年春节",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"南宋绍兴年间，岳飞死后四年，秦桧（雷佳音 饰）率兵与金国会谈。小兵张大（沈腾 饰）与亲兵营副统领孙均（易烊千玺 饰）机缘巧合被裹挟进一个巨大阴谋之中。秦桧府中接连发生命案，线索指向一首流传甚广的童谣。随着调查的深入，一个惊天秘密逐渐浮出水面。众义士为了民族大义，不惜牺牲生命，谱写一曲壮烈的满江红。"},
+    {id:5,title:"消失的她2",genre:"悬疑",rating:8.7,duration:"121分钟",basePrice:45,icon:"🔍",
+     desc:"何非的妻子李木子在结婚周年旅行中离奇消失。一个神秘女人突然出现，声称自己才是真正的李木子。",
+     actors:["朱一龙","倪妮","文咏珊","杜江","黄子琪"],director:"陈思诚",release:"2025年暑期",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"何非（朱一龙 饰）的妻子李木子（文咏珊 饰）在结婚周年旅行中离奇消失。就在何非苦寻无果之时，一个陌生女人（倪妮 饰）突然出现，声称自己才是真正的李木子。然而何非却坚称这个女人不是自己的妻子。随着调查的深入，一起涉及身份互换、财产争夺的惊天大案逐渐浮出水面。真相究竟如何？每个人似乎都在说谎..."},
+    {id:6,title:"长津湖之水门桥",genre:"战争",rating:9.1,duration:"149分钟",basePrice:55,icon:"🏔️",
+     desc:"以抗美援朝战争第二次战役中的长津湖战役为背景，讲述志愿军战士在极度严寒下坚守阵地、奋勇杀敌的感人故事。",
+     actors:["吴京","易烊千玺","段奕宏","朱亚文","李晨"],director:"陈凯歌/徐克/林超贤",release:"2024年春节",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"1950年，中国人民志愿军赴朝作战。在零下40度的极寒天气中，志愿军战士们以钢铁般的意志和英勇无畏的精神，在长津湖地区展开了一场震惊世界的战役。七连战士们在完成艰巨任务后，又接到了一项更为艰巨的任务——炸毁水门桥，阻断美军撤退路线。面对装备精良的敌人和恶劣的自然环境，战士们誓死完成任务，谱写了一曲可歌可泣的英雄赞歌。"},
+    {id:7,title:"这个杀手不太冷静2",genre:"喜剧",rating:8.3,duration:"118分钟",basePrice:45,icon:"😂",
+     desc:"毕生追求男主梦的魏成功终于得到了女明星米兰的赏识，却意外卷入一场黑帮纷争之中。",
+     actors:["魏翔","马丽","陈明昊","周大勇","黄才伦"],director:"邢文雄",release:"2025年暑期",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"魏成功（魏翔 饰）是一个默默无闻的龙套演员，他最大的梦想就是演一次男主角。终于有一天，他得到了女明星米兰（马丽 饰）的赏识，邀请他出演一部新片。然而魏成功不知道的是，这根本不是拍电影，而是一场真实的黑帮火拼。他将在不知情的情况下，扮演一个真正的杀手。在这场啼笑皆非的闹剧中，魏成功凭借自己精湛的演技，一次次化险为夷..."},
+    {id:8,title:"深海",genre:"动画",rating:8.9,duration:"112分钟",basePrice:50,icon:"🌊",
+     desc:"在大海的最深处藏着所有秘密。一位现代少女误入梦幻的深海世界，开启了一段奇幻的治愈之旅。",
+     actors:["苏鑫","王亭文","滕奎兴","杨婷","吉静"],director:"田晓鹏",release:"2025年春节",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"小女孩参宿（王亭文 配音）在一次意外中坠入深海，来到了一个梦幻般的世界。在这里，她遇到了一个魔法少年南河（苏鑫 配音），两人一起踏上了一段奇妙的深海之旅。深海世界充满了各种奇异的生物和美丽的景色，但同时也隐藏着未知的危险。参宿在这段旅程中逐渐找到了自己的勇气，也治愈了内心的创伤，学会面对生活中的困难。"},
+    {id:9,title:"宇宙探索编辑部",genre:"科幻",rating:8.6,duration:"118分钟",basePrice:45,icon:"🛸",
+     desc:"科幻杂志社主编因困惑一生的难题误入寻找地外文明的啼笑皆非旅途，探索宇宙奥秘与人生意义。",
+     actors:["杨皓宇","艾丽娅","王一通","蒋奇鸣","盛晨晨"],director:"孔大山",release:"2025年五一",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"唐志军（杨皓宇 饰）是一家科幻杂志社的主编，他痴迷于寻找外星文明，坚信宇宙中存在其他智慧生命。然而他的同事们却对他的想法嗤之以鼻。一天，唐志军收到了一条神秘信号，他相信这是外星人发来的信息。于是他带着几个志同道合的伙伴，踏上了一段寻找地外文明的旅程。这段旅程充满了荒诞和意外，却也让他们对宇宙和人生有了新的认识。"},
+    {id:10,title:"交换人生",genre:"喜剧",rating:8.2,duration:"110分钟",basePrice:40,icon:"🔄",
+     desc:"仲达与金好相亲后，意外和暗恋金好的少年陆小谷换身。两个完全不同的人被迫交换人生，发生了一系列啼笑皆非的故事。",
+     actors:["雷佳音","张小斐","张宥浩","沙溢","刘敏涛"],director:"苏伦",release:"2025年春节",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"仲达（雷佳音 饰）是一个中年律师，事业有成但婚姻失败。他与金好（张小斐 饰）相亲后，意外和一个暗恋金好的少年陆小谷（张宥浩 饰）交换了身体。两个年龄、性格截然不同的人被迫交换人生。仲达要面对高考的压力，而陆小谷则要处理复杂的大人世界。在这场啼笑皆非的交换中，两人都找到了自己真正想要的人生。"},
+    {id:11,title:"保你平安",genre:"喜剧",rating:8.5,duration:"112分钟",basePrice:45,icon:"🛡️",
+     desc:"落魄中年魏平安以直播带货卖墓地为生，他的客户被造谣抹黑。魏平安为了正义，踏上了辟谣之路。",
+     actors:["大鹏","李雪琴","尹正","王迅","王圣迪"],director:"大鹏",release:"2025年五一",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"魏平安（大鹏 饰）是一个落魄的中年人，靠直播带货卖墓地为生。他的客户韩露（王圣迪 饰）在网上被人造谣抹黑，魏平安看不惯这种欺凌行为，决定帮助韩露辟谣。然而他的辟谣之路并不顺利，反而让自己也陷入了麻烦之中。在经历了各种啼笑皆非的遭遇后，魏平安始终坚持自己的信念，最终成功还原了真相，也找到了自己的价值。"},
+    {id:12,title:"检察风云",genre:"犯罪",rating:8.1,duration:"125分钟",basePrice:45,icon:"⚖️",
+     desc:"大学教授夏薇涉嫌故意杀人，舆论发酵失控，多方压力涌来。检察官在调查中揭开了一个惊天秘密。",
+     actors:["黄景瑜","白百何","王丽坤","王千源","包贝尔"],director:"麦兆辉",release:"2025年五一",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"大学教授夏薇（白百何 饰）被指控故意杀人，案件引发了社会的广泛关注。检察官李睿（黄景瑜 饰）负责此案的调查工作。在调查过程中，他发现案情并不简单，背后隐藏着一个巨大的阴谋。随着调查的深入，李睿面临着来自各方的压力和威胁。但他始终坚持司法公正，最终还原了案件的真相，将真正的罪犯绳之以法。"},
+    {id:13,title:"中国乒乓之绝地反击",genre:"剧情",rating:8.7,duration:"137分钟",basePrice:50,icon:"🏓",
+     desc:"1992年至1995年期间，蔡振华从国外回来担任主帅，带领中国乒乓球队重回世界之巅的励志故事。",
+     actors:["邓超","孙俪","许魏洲","段博文","蔡宜达"],director:"邓超/俞白眉",release:"2025年春节",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"1992年，中国乒乓女队在国际比赛中节节败退，陷入了前所未有的低谷。蔡振华（邓超 饰）放弃国外的优厚待遇，毅然回国担任女队主教练。面对队员们的质疑和外界的压力，蔡振华推行了一系列改革措施，严格训练，科学管理。在短短三年时间里，他带领中国乒乓女队走出低谷，最终在1995年世乒赛上夺回了冠军宝座，实现了一次震撼人心的绝地反击。"},
+    {id:14,title:"人生路不熟",genre:"喜剧",rating:8.3,duration:"100分钟",basePrice:40,icon:"🚐",
+     desc:"车队大佬周东海和老婆霍梅梅与女儿男朋友万一帆同行自驾。一路上，准女婿为了讨好岳父闹出了各种笑话。",
+     actors:["乔杉","范丞丞","马丽","张婧仪","常远"],director:"易小星",release:"2025年五一",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"车队大佬周东海（乔杉 饰）和老婆霍梅梅（马丽 饰）决定自驾游，女儿周小艾（张婧仪 饰）带着男朋友万一帆（范丞丞 饰）一起同行。为了讨好未来的岳父，万一帆一路上努力表现，却总是弄巧成拙，闹出了各种啼笑皆非的笑话。从堵车到迷路，从露营到修车，这段充满意外的旅程让每个人都收获了成长和感动。"},
+    {id:15,title:"无名",genre:"剧情",rating:8.4,duration:"128分钟",basePrice:50,icon:"🎩",
+     desc:"全面抗战爆发后，中共地下党员冒险送出情报，破坏日蒋媾和。在隐秘战线上，无数无名英雄默默奉献。",
+     actors:["梁朝伟","王一博","周迅","王传君","黄磊"],director:"程耳",release:"2025年春节",lang:"中文",country:"中国",status:'showing',screeningDays:30,
+     plot:"全面抗战爆发后，中共地下党员何先生（梁朝伟 饰）潜入汪伪政府内部，冒着生命危险收集情报。他与年轻的同志叶先生（王一博 饰）一起，在敌人的重重监视下，展开了一场惊心动魄的情报战。他们成功破坏了日伪的多次阴谋，为抗战胜利做出了巨大贡献。然而在隐秘战线上，他们的名字无人知晓，他们的功绩却永载史册。"}
+  ],
+  showtimes:[{id:1,time:"09:30"},{id:2,time:"12:00"},{id:3,time:"14:30"},{id:4,time:"17:00"},{id:5,time:"19:30"},{id:6,time:"22:00"}],
+  halls:[{id:1,name:"1号厅",type:"imax",label:"IMAX厅",priceAdj:0.30},{id:2,name:"2号厅",type:"vip",label:"VIP厅",priceAdj:0.50},{id:3,name:"3号厅",type:"vip",label:"VIP厅",priceAdj:0.50},{id:4,name:"4号厅",type:"normal",label:"普通厅",priceAdj:0},{id:5,name:"5号厅",type:"normal",label:"普通厅",priceAdj:0},{id:6,name:"6号厅",type:"normal",label:"普通厅",priceAdj:0}],
+  orders:[],users:[{id:1,username:"admin",password:"admin123",email:"admin@cinema.com",role:"admin"},{id:2,username:"test",password:"test123",email:"test@test.com",role:"user"}],
+  systemLogs:[],
+  schedules:[]
+};
+
+// ============================================================================
+// 海报生成器
+// ============================================================================
+const PosterGenerator = {
+  gradients: [
+    ['#667eea','#764ba2'],['#f093fb','#f5576c'],['#4facfe','#00f2fe'],
+    ['#43e97b','#38f9d7'],['#fa709a','#fee140'],['#a18cd1','#fbc2eb'],
+    ['#fccb90','#d57eeb'],['#e0c3fc','#8ec5fc'],['#f5576c','#ff6f00'],
+    ['#667eea','#764ba2'],['#0acffe','#495aff'],['#fa709a','#fee140'],
+    ['#30cfd0','#330867'],['#a6c0fe','#f68084'],['#667eea','#764ba2']
+  ],
+  patterns: ['★','◆','●','▲','◆','★','●','▲','◆','★','●','▲','★','◆','●'],
+  getStyle(movieId){
+    const i=(movieId-1)%this.gradients.length;
+    const [c1,c2]=this.gradients[i];
+    const p=this.patterns[i];
+    const bg=`linear-gradient(135deg,${c1},${c2})`;
+    const grid=`url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='0.05'%3E%3Ctext x='10' y='25' font-size='20'%3E${p}%3C/text%3E%3C/g%3E%3C/svg%3E")`;
+    return {background:`${bg},${grid}`,c1,c2};
+  }
+};
+
+// ============================================================================
+// 日志与缓存系统
+// ============================================================================
+const Logger={log(l,m,u,i){SystemData.systemLogs.unshift({time:new Date().toISOString(),level:l,module:m,message:u,userId:i});if(SystemData.systemLogs.length>500)SystemData.systemLogs.pop();},info(m,u,i){return this.log('info',m,u,i)},warning(m,u,i){return this.log('warning',m,u,i)},error(m,u,i){return this.log('error',m,u,i)}};
+const Cache={store:new Map(),set(k,v,t=300000){this.store.set(k,{v,e:Date.now()+t})},get(k){const i=this.store.get(k);if(!i)return null;if(Date.now()>i.e){this.store.delete(k);return null}return i.v},clear(t){if(!t){this.store.clear();return}for(const[k]of this.store)if(k.startsWith(t))this.store.delete(k)}};
+
+// ============================================================================
+// 并发锁座系统
+// ============================================================================
+const ScheduleManager = {
+  // 每个电影固定分配3个影厅
+  hallAssignments: {
+    1:[1,4,5],2:[2,3,6],3:[1,4,5],4:[2,3,6],5:[1,5,6],
+    6:[2,3,4],7:[1,5,6],8:[2,3,4],9:[1,4,5],10:[2,3,6],
+    11:[1,5,6],12:[2,3,4],13:[1,4,5],14:[2,3,6],15:[1,5,6]
+  },
+  // 时间档位定义：每场2.5小时间隔
+  timeSlots: {
+    morning: { label:'上午档', slots:[
+      {start:'08:00',end:'10:30',period:'morning'},
+      {start:'10:30',end:'13:00',period:'morning'},
+      {start:'13:00',end:'15:30',period:'afternoon'},
+      {start:'15:30',end:'18:00',period:'afternoon'}
+    ]},
+    evening: { label:'夜场档', slots:[
+      {start:'17:00',end:'19:30',period:'evening'},
+      {start:'19:30',end:'22:00',period:'evening'},
+      {start:'22:00',end:'00:30',period:'late'}
+    ]}
+  },
+  // 获取电影分配的影厅
+  getHallsForMovie(movieId){ return this.hallAssignments[movieId]||[4,5,6]; },
+  // 检查是否冲突：同一影厅同一时间段
+  checkConflict(schedules, movieId, hallId, date, startTime, excludeId){
+    return schedules.some(s => {
+      if(excludeId && s.id===excludeId) return false;
+      if(s.hallId!==hallId || s.date!==date) return false;
+      // 检查时间重叠
+      const t1 = this.timeToMin(startTime);
+      const t2 = this.timeToMin(s.startTime);
+      const dur = 150; // 2.5小时 = 150分钟
+      return Math.abs(t1-t2) < dur;
+    });
+  },
+  timeToMin(t){ const [h,m]=t.split(':').map(Number); return h*60+m; },
+  // 获取某电影在某个日期的可用场次
+  getAvailableShowtimes(schedules, movieId, date){
+    return schedules.filter(s => s.movieId===movieId && s.date===date);
+  },
+  // 获取某影厅所有被占用的时间段
+  getHallOccupiedSlots(schedules, hallId, date){
+    return schedules.filter(s => s.hallId===hallId && s.date===date)
+      .map(s => ({ start:s.startTime, end:s.endTime, movieId:s.movieId }));
+  },
+  // 格式化显示时间段
+  formatSlot(start,end){ return `${start}-${end}`; },
+  // 生成默认排片（15部电影 × 6影厅，无冲突）
+  generateDefaultSchedules(movies, halls, forDate){
+    const schedules = [];
+    const date = forDate || new Date().toISOString().split('T')[0];
+    let scheduleId = 1;
+    // 为每部电影分配3个影厅 × 多个时间档
+    movies.forEach((movie, mi) => {
+      const assignedHalls = this.hallAssignments[movie.id] || [4,5,6];
+      // 上午档：给前8部电影排4个时段
+      if(mi < 8){
+        assignedHalls.forEach((hallId, hi) => {
+          const slotIdx = (mi*3 + hi) % 4;
+          const slot = this.timeSlots.morning.slots[slotIdx];
+          schedules.push({
+            id: scheduleId++, movieId: movie.id, hallId,
+            date, startTime: slot.start, endTime: slot.end,
+            period: slot.period, timeBlock: 'morning',
+            status: 'active', createdAt: Date.now()
+          });
+        });
+      }
+      // 夜场档：给所有电影排3个时段
+      assignedHalls.forEach((hallId, hi) => {
+        const slotIdx = (mi*2 + hi) % 3;
+        const slot = this.timeSlots.evening.slots[slotIdx];
+        schedules.push({
+          id: scheduleId++, movieId: movie.id, hallId,
+          date, startTime: slot.start, endTime: slot.end,
+          period: slot.period, timeBlock: 'evening',
+          status: 'active', createdAt: Date.now()
+        });
+      });
+    });
+    // 去重：移除同一影厅同一时间的冲突排片
+    const unique = []; const seen = new Set();
+    schedules.forEach(s => {
+      const key = `${s.hallId}_${s.date}_${s.startTime}`;
+      if(!seen.has(key)){ seen.add(key); unique.push(s); }
+    });
+    return unique;
+  }
+};
+const SeatLockSystem={locks:new Map(),acquire(s,u,t=600000){const n=Date.now(),e=this.locks.get(s);if(e&&n-e.lockedAt<e.timeout&&e.userId!==u)return false;this.locks.set(s,{userId:u,lockedAt:n,timeout:t});return true},release(s,u){const l=this.locks.get(s);if(l&&l.userId===u){this.locks.delete(s);return true}return false},isLocked(s){const l=this.locks.get(s);if(!l)return false;if(Date.now()-l.lockedAt>l.timeout){this.locks.delete(s);return false}return true},getLockInfo(s){const l=this.locks.get(s);if(!l)return null;if(Date.now()-l.lockedAt>l.timeout){this.locks.delete(s);return null}return l},cleanup(){const n=Date.now();for(const[s,l]of this.locks)if(n-l.lockedAt>l.timeout)this.locks.delete(s)}};
+setInterval(()=>SeatLockSystem.cleanup(),30000);
+
+// ============================================================================
+// 全局状态
+// ============================================================================
+let currentUser=null,selectedSeats=[],currentOrder=null,paymentTimer=null,lockTimer=null,lockCountdown=1800,selectedHallId=null,selectedShowtime=null;
+let currentGenreFilter='all';
+
+function genOrderNum(){const d=new Date();return 'ORD'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0')+String(d.getSeconds()).padStart(2,'0')+String(Math.floor(Math.random()*1000)).padStart(3,'0')}
+function formatTime(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function showToast(t,m){const c=document.getElementById('toastContainer'),e=document.createElement('div');e.className='toast '+t;const icons={success:'fa-check-circle',error:'fa-times-circle',info:'fa-info-circle',warning:'fa-exclamation-circle'};e.innerHTML=`<i class="fas ${icons[t]||'fa-info-circle'}"></i> ${m}`;c.appendChild(e);setTimeout(()=>{e.style.opacity='0';e.style.transform='translateX(100%)';e.style.transition='all 0.3s';setTimeout(()=>e.remove(),300)},3500)}
+function scrollToSection(id){const e=document.getElementById(id);if(e)e.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));const f=document.querySelector(`.nav-link[onclick*="'${id}'"]`);if(f)f.classList.add('active');document.getElementById('navMenu').classList.remove('open')}
+function showModal(id){document.getElementById(id).classList.add('active')}
+function hideModal(id){document.getElementById(id).classList.remove('active')}
+function switchModal(show,hide){document.getElementById(hide).classList.remove('active');document.getElementById(show).classList.add('active')}
+function getActiveMovies(){return SystemData.movies.filter(m=>m.status==='showing'||m.status==='presale')}
+function getShowingMovies(){return SystemData.movies.filter(m=>m.status==='showing')}
+function getPresaleMovies(){return SystemData.movies.filter(m=>m.status==='presale')}
+
+// ============================================================================
+// 电影详情
+// ============================================================================
+function showMovieDetail(id){
+  const m=SystemData.movies.find(x=>x.id===id);if(!m)return;
+  const ps=PosterGenerator.getStyle(m.id);
+  const c=document.getElementById('movieDetailContent');c.innerHTML='';
+  const imgPath=`posters/${m.id}.png`;
+  const header=document.createElement('div');header.className='movie-detail-header';
+  const posterBg=document.createElement('div');posterBg.className='poster-bg';posterBg.style.cssText=`position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;background:${ps.background}`;
+  const iconSpan=document.createElement('span');iconSpan.className='poster-icon';iconSpan.style.cssText='font-size:100px;position:absolute;opacity:0.3;z-index:1;';iconSpan.textContent=m.icon;
+  const img=document.createElement('img');img.src=imgPath;img.alt=m.title;
+  img.style.cssText='width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:2;';
+  img.style.display='none';
+  img.onload=function(){this.style.display='block';iconSpan.style.display='none';posterBg.style.background='#000';};
+  img.onerror=function(){this.style.display='none';iconSpan.style.display='block';posterBg.style.background=ps.background;};
+  posterBg.appendChild(iconSpan);posterBg.appendChild(img);
+  header.appendChild(posterBg);
+  const overlay=document.createElement('div');overlay.className='detail-overlay';
+  const statusTag=m.status==='presale'?'<span class="detail-tag" style="background:rgba(253,121,168,0.2);color:var(--secondary)">🔥 预售</span>':'';
+  overlay.innerHTML=`<h2 class="detail-title">${m.title}</h2><div class="detail-meta">${statusTag}<span class="detail-tag">${m.genre}</span><span class="detail-tag"><i class="fas fa-star" style="color:var(--warning)"></i> ${m.rating}分</span><span class="detail-tag"><i class="far fa-clock"></i> ${m.duration}</span><span class="detail-tag"><i class="fas fa-tag"></i> ¥${m.basePrice}起</span></div>`;
+  header.appendChild(overlay);c.appendChild(header);
+  const body=document.createElement('div');body.className='movie-detail-body';
+  body.innerHTML=`<div class="detail-section"><h3><i class="fas fa-book-open"></i> 剧情简介</h3><p>${m.plot||m.desc}</p></div>
+    <div class="detail-section"><h3><i class="fas fa-user-friends"></i> 主演阵容</h3><div class="detail-actors">${(m.actors||['待定']).map(a=>`<div class="detail-actor"><div class="avatar" style="background:${ps.c1}">${a[0]}</div><span>${a}</span></div>`).join('')}</div></div>
+    <div class="detail-section"><h3><i class="fas fa-info-circle"></i> 影片信息</h3><div class="detail-info-grid"><div class="detail-info-item"><span class="label">导演</span><div class="value">${m.director||'待定'}</div></div><div class="detail-info-item"><span class="label">上映日期</span><div class="value">${m.release||'待定'}</div></div><div class="detail-info-item"><span class="label">语言</span><div class="value">${m.lang||'中文'}</div></div><div class="detail-info-item"><span class="label">国家/地区</span><div class="value">${m.country||'中国'}</div></div></div></div>
+    <div style="margin-top:20px;display:flex;gap:10px;"><button class="btn btn-primary" onclick="hideModal('movieDetailModal');quickBook(${m.id})" style="flex:1"><i class="fas fa-ticket-alt"></i> 立即选座</button><button class="btn btn-outline" onclick="hideModal('movieDetailModal')" style="flex:1"><i class="fas fa-times"></i> 关闭</button></div>`;
+  c.appendChild(body);showModal('movieDetailModal');
+}
+
+// ============================================================================
+// 初始化 - 生成排片数据并启动系统
+// ============================================================================
+function initSystemSchedules(){
+  // 为每个影片生成默认3个影厅排片
+  SystemData.schedules = ScheduleManager.generateDefaultSchedules(
+    SystemData.movies, SystemData.halls
+  );
+  Logger.info('system',`排片系统已初始化，共 ${SystemData.schedules.length} 个场次`);
+}
+document.addEventListener('DOMContentLoaded',function(){
+  initSystemSchedules();
+  initDate();initMovies();initMovieSelect();initSeats();initRecommendations();initAdmin();initEventListeners();initPricingCalculator();
+  checkMovieExpiry();updateHeroStats();
+  Logger.info('system','🎬 电影院网上订票系统启动完成');
+  Logger.info('system','排片管理 | 影片管理 | 预售 | 放映周期 | 智能推荐 | 动态定价');
+});
+
+function initDate(){const d=document.getElementById('showDate');d.value=new Date().toISOString().split('T')[0];d.min=d.value}
+
+function checkMovieExpiry(){
+  const now=Date.now();
+  SystemData.movies.forEach(m=>{
+    if(m.status!=='ended'&&m._addedAt){
+      const elapsed=Math.floor((now-m._addedAt)/86400000);
+      if(elapsed>=m.screeningDays){
+        m.status='ended';
+        Logger.info('system',`影片《${m.title}》放映周期已结束，自动下架`);
+      }
+    }
+  });
+}
+
+// ============================================================================
+// 电影列表
+// ============================================================================
+function initMovies(){
+  const grid=document.getElementById('moviesGrid');grid.innerHTML='';
+  const active=getActiveMovies();
+  // 更新标题
+  const presaleCount=getPresaleMovies().length;
+  document.getElementById('movieSectionLabel').textContent=presaleCount>0?'正在热映 & 预售':'正在热映';
+  document.getElementById('movieSectionTitle').textContent=active.length+'部精选影片'+(presaleCount>0?` (含${presaleCount}部预售)`:'');
+  // 预售筛选按钮
+  const psBtn=document.getElementById('presaleFilterBtn');
+  if(presaleCount>0){psBtn.style.display='';psBtn.textContent=`🔥 预售 (${presaleCount})`}else{psBtn.style.display='none'}
+  // 应用筛选
+  let filtered=active;
+  if(currentGenreFilter==='presale')filtered=active.filter(m=>m.status==='presale');
+  else if(currentGenreFilter!=='all')filtered=active.filter(m=>m.genre===currentGenreFilter);
+  
+  filtered.forEach(m=>{
+    const ps=PosterGenerator.getStyle(m.id);
+    const card=document.createElement('div');card.className='movie-card';card.dataset.genre=m.genre;card.dataset.status=m.status;
+    const imgPath=`posters/${m.id}.png`;
+    const posterDiv=document.createElement('div');posterDiv.className='movie-poster';posterDiv.style.background=ps.background;
+    const fallback=document.createElement('div');fallback.style.cssText='display:flex;align-items:center;justify-content:center;flex-direction:column;height:100%;position:absolute;top:0;left:0;right:0;bottom:0;z-index:1;';
+    fallback.innerHTML=`<div style="font-size:72px;opacity:0.4;margin-bottom:8px;">${m.icon}</div><div style="font-size:20px;font-weight:600;color:rgba(255,255,255,0.7);text-shadow:0 2px 8px rgba(0,0,0,0.3);">${m.title}</div>`;
+    const img=document.createElement('img');img.src=imgPath;img.alt=m.title;
+    img.style.cssText='width:100%;height:100%;object-fit:cover;position:relative;z-index:2;';img.style.display='none';
+    img.onload=function(){this.style.display='block';fallback.style.display='none';posterDiv.style.background='#000';};
+    img.onerror=function(){this.style.display='none';fallback.style.display='flex';posterDiv.style.background=ps.background;};
+    // 状态角标
+    const statusBadge=document.createElement('div');
+    if(m.status==='presale'){statusBadge.className='status-badge-abs presale';statusBadge.innerHTML='<i class="fas fa-fire"></i> 预售'}else{statusBadge.className='status-badge-abs showing';statusBadge.innerHTML='<i class="fas fa-play"></i> 上映中'}
+    const badge=document.createElement('div');badge.className='movie-rating-badge';badge.innerHTML=`<i class="fas fa-star"></i> ${m.rating}`;
+    const overlay=document.createElement('div');overlay.className='movie-overlay';
+    overlay.innerHTML=`<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();quickBook(${m.id})"><i class="fas fa-ticket-alt"></i> ${m.status==='presale'?'预售':'选座'}</button><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();showMovieDetail(${m.id})"><i class="fas fa-info-circle"></i> 详情</button>`;
+    posterDiv.appendChild(fallback);posterDiv.appendChild(img);posterDiv.appendChild(statusBadge);posterDiv.appendChild(badge);posterDiv.appendChild(overlay);
+    const infoDiv=document.createElement('div');infoDiv.className='movie-info';
+    const titleHtml=m.status==='presale'?`${m.title}<span class="presale-tag">🔥预售</span>`:m.title;
+    infoDiv.innerHTML=`<h3 class="movie-title">${titleHtml}</h3><div class="movie-meta"><span class="movie-genre">${m.genre}</span><span class="movie-duration"><i class="far fa-clock"></i> ${m.duration}</span></div><p class="movie-desc">${m.desc.substring(0,40)}...</p>
+      <div class="movie-footer"><div class="movie-price">¥${m.basePrice} <small>起${m.status==='presale'?' · 预售':''}</small></div><div class="btn-group"><button class="btn btn-primary btn-sm" onclick="event.stopPropagation();quickBook(${m.id})"><i class="fas fa-ticket-alt"></i> ${m.status==='presale'?'预售选座':'选座'}</button><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();showMovieDetail(${m.id})"><i class="fas fa-info-circle"></i> 详情</button></div></div>`;
+    card.appendChild(posterDiv);card.appendChild(infoDiv);
+    card.addEventListener('click',()=>showMovieDetail(m.id));grid.appendChild(card);
+  });
+  updateHeroStats();
+}
+
+function updateHeroStats(){
+  const active=getActiveMovies(),presale=getPresaleMovies().length;
+  document.getElementById('heroMovieCount').textContent=active.length+(presale>0?`+${presale}`:'');
+}
+
+function initMovieSelect(){const s=document.getElementById('movieSelect');s.innerHTML='<option value="">请选择电影</option>';getActiveMovies().forEach(m=>{s.innerHTML+=`<option value="${m.id}">${m.title}${m.status==='presale'?' 🔥预售':''}</option>`})}
+function quickBook(id){const s=document.getElementById('movieSelect');s.value=id;document.getElementById('showDate').value=new Date().toISOString().split('T')[0];generateShowtimes();initSeats();scrollToSection('booking')}
+
+// 智能排片：从ScheduleManager获取该电影对应影厅和时段的实际排片数据
+function getSchedulesForMovie(movieId, date){
+  return SystemData.schedules.filter(s => 
+    s.movieId === movieId && s.date === date && s.status === 'active'
+  );
+}
+
+function generateShowtimes(){
+  const c=document.getElementById('showtimeContainer'),s=document.getElementById('movieSelect'),mi=parseInt(s.value);
+  if(!mi){c.innerHTML='<span style="color:var(--text-dim)">请先选择电影</span>';return;}
+  const date=document.getElementById('showDate').value;
+  // 从排片系统获取该电影的合法场次
+  const schedules = getSchedulesForMovie(mi, date);
+  if(!schedules.length){
+    c.innerHTML='<span style="color:var(--text-dim)">当前日期暂无排片，请选择其他日期</span>';
+    return;
+  }
+  // 显示该电影的可用场次（已排好片的时间段）
+  const assignedHalls = ScheduleManager.getHallsForMovie(mi);
+  const times = [...new Set(schedules.map(s=>s.startTime))].sort((a,b)=>ScheduleManager.timeToMin(a)-ScheduleManager.timeToMin(b));
+  let html='<div style="margin-bottom:8px;color:var(--text-muted);font-size:13px;"><i class="fas fa-clock"></i> 可选场次:</div>';
+  times.forEach(t=>{
+    const h=parseInt(t.split(':')[0]);
+    const p=h<12?'☀️上午':h<17?'🌤️下午':h<22?'🌙晚间':'🌜深夜';
+    const block=h<17?'上午档':'夜场档';
+    html+=`<button class="showtime-btn" data-time="${t}" onclick="selectShowtime(this,'${t}')"><i class="fas fa-clock"></i> ${t} <small style="color:var(--text-dim);font-size:10px;">${p} · ${block}</small></button>`
+  });
+  html+=`<span style="color:var(--text-dim);margin:0 4px;font-size:12px;">|</span>`;
+  // 只显示该电影分配的3个影厅
+  const assignedHallNames = {1:'1号厅(IMAX)',2:'2号厅(VIP)',3:'3号厅(VIP)',4:'4号厅(普通)',5:'5号厅(普通)',6:'6号厅(普通)'};
+  html+='<div style="margin-bottom:8px;color:var(--text-muted);font-size:13px;"><i class="fas fa-building"></i> 可选影厅:</div>';
+  assignedHalls.forEach(hid=>{
+    const h=SystemData.halls.find(x=>x.id===hid);
+    if(!h) return;
+    const t=h.type==='imax'?'fa-star':h.type==='vip'?'fa-crown':'fa-building';
+    const tc=h.type==='imax'?'var(--primary)':h.type==='vip'?'var(--secondary)':'var(--accent)';
+    html+=`<button class="showtime-btn hall-btn" onclick="selectHall(this,${h.id})"><i class="fas ${t}" style="color:${tc}"></i> ${h.name} ${h.label}</button>`
+  });
+  // 显示不可选的影厅（灰色不可点击）
+  const unassignedHalls = SystemData.halls.filter(h=>!assignedHalls.includes(h.id));
+  if(unassignedHalls.length){
+    html+=`<span style="color:var(--text-dim);margin:0 4px;font-size:12px;">|</span><span style="color:var(--text-dim);font-size:12px;">不可用影厅:</span>`;
+    unassignedHalls.forEach(h=>{
+      html+=`<span class="showtime-btn" style="opacity:0.3;cursor:not-allowed;"><i class="fas fa-ban"></i> ${h.name} ${h.label}</span>`
+    });
+  }
+  c.innerHTML=html;
+  const ft=c.querySelector('.showtime-btn:not(.hall-btn)'),fh=c.querySelector('.hall-btn');
+  if(ft){ft.classList.add('active');selectedShowtime=ft.dataset.time;}if(fh){fh.classList.add('active');selectedHallId=parseInt(fh.dataset.hallId)}updateHallLabel();
+}
+
+function selectShowtime(el,t){document.querySelectorAll('.showtime-btn:not(.hall-btn)').forEach(b=>b.classList.remove('active'));el.classList.add('active');selectedShowtime=t;initSeats();showToast('info',`已选择场次: ${t}`)}
+function selectHall(el,i){document.querySelectorAll('.hall-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');selectedHallId=i;updateHallLabel();initSeats();const h=SystemData.halls.find(x=>x.id===i);showToast('info',`已选择${h.name} ${h.label}`)}
+function updateHallLabel(){const h=SystemData.halls.find(x=>x.id===selectedHallId);if(h)document.getElementById('currentHallLabel').textContent=`${h.name} ${h.label} 银幕`}
+
+function generateSeatMap(hallId,movieId){
+  const layouts={1:{rows:[{r:'A',c:8},{r:'B',c:10},{r:'C',c:12},{r:'D',c:12},{r:'E',c:12},{r:'F',c:12},{r:'G',c:10},{r:'H',c:8}]},2:{rows:[{r:'A',c:6},{r:'B',c:8},{r:'C',c:8},{r:'D',c:8},{r:'E',c:6},{r:'F',c:4}]},3:{rows:[{r:'A',c:6},{r:'B',c:8},{r:'C',c:8},{r:'D',c:8},{r:'E',c:6},{r:'F',c:4}]},4:{rows:[{r:'A',c:6},{r:'B',c:8},{r:'C',c:10},{r:'D',c:10},{r:'E',c:10},{r:'F',c:8},{r:'G',c:6}]},5:{rows:[{r:'A',c:6},{r:'B',c:8},{r:'C',c:10},{r:'D',c:10},{r:'E',c:10},{r:'F',c:8},{r:'G',c:6}]},6:{rows:[{r:'A',c:6},{r:'B',c:8},{r:'C',c:10},{r:'D',c:10},{r:'E',c:10},{r:'F',c:8},{r:'G',c:6}]}};
+  const layout=layouts[hallId]||layouts[4],seed=(movieId||1)+(hallId||1)*10,map=[];
+  layout.rows.forEach((r,ri)=>{for(let i=1;i<=r.c;i++){const id=`${r.r}${i}`,rand=((seed*7+ri*13+i*29)%100)/100;let s='available';if(rand<0.15)s='sold';else if(rand<0.18)s='unavailable';map.push({id,row:r.r,number:i,status:s,type:'normal',price:45})}});
+  return map;
+}
+
+function getSmartRecommendedSeats(map,st){
+  if(!st||!map.length)return[];const h=parseInt(st.split(':')[0]),recs=[];
+  map.forEach((s,i)=>{if(s.status!=='available')return;let sc=0;if(h<12&&s.row<='C'&&s.number>=3&&s.number<=8)sc=0.9-(i*0.01);else if(h<18&&s.row>='D'&&s.row<='F'&&s.number>=3&&s.number<=8)sc=0.95-(i*0.01);else if(h<22&&s.row>='D'&&s.row<='G'&&s.number>=3&&s.number<=8)sc=1.0-(i*0.005);else if(s.row>='E'&&s.number>=2&&s.number<=8)sc=0.85-(i*0.01);if(sc>0)recs.push({...s,score:sc})});
+  return recs.sort((a,b)=>b.score-a.score).slice(0,6).map(r=>r.id);
+}
+
+function initSeats(){
+  const c=document.getElementById('seatsContainer'),s=document.getElementById('movieSelect'),mi=parseInt(s.value)||1,hi=selectedHallId||1;
+  c.innerHTML='';selectedSeats=[];document.getElementById('selectedSeatsCount').textContent='0';document.getElementById('selectedSeatsList').textContent='无';document.getElementById('totalAmount').textContent='0.00';document.getElementById('countdownTimer').style.display='none';
+  if(lockTimer){clearInterval(lockTimer);lockTimer=null}
+  if(!s.value){c.innerHTML='<p style="color:var(--text-dim);padding:40px;text-align:center;">请先选择电影</p>';return;}
+  const map=generateSeatMap(hi,mi),h=SystemData.halls.find(x=>x.id===hi),recs=getSmartRecommendedSeats(map,selectedShowtime),groups={};
+  map.forEach(x=>{if(!groups[x.row])groups[x.row]=[];groups[x.row].push(x)});
+  Object.keys(groups).forEach(row=>{
+    const rd=document.createElement('div');rd.className='seat-row';
+    const lb=document.createElement('div');lb.className='row-label';lb.textContent=row;rd.appendChild(lb);
+    groups[row].forEach(seat=>{
+      const dv=document.createElement('div');dv.className='seat';dv.dataset.seatId=seat.id;
+      if(seat.status==='sold')dv.classList.add('sold');else if(seat.status==='unavailable')dv.classList.add('unavailable');else dv.classList.add('available');
+      dv.innerHTML='<i class="fas fa-chair"></i>';dv.title=`${row}排${seat.number}座`;
+      if(seat.status!=='sold'&&seat.status!=='unavailable'){if(recs.includes(seat.id)){dv.classList.add('recommended');dv.title+=' ⭐智能推荐'}dv.addEventListener('click',function(){handleSeatClick(this,seat,h)})}
+      rd.appendChild(dv);});c.appendChild(rd);});updatePriceInfo();
+}
+
+function handleSeatClick(el,seat,hall){
+  if(el.classList.contains('sold')||el.classList.contains('unavailable'))return;
+  if(!currentUser){showToast('warning','请先登录后再选座');showModal('loginModal');return;}
+  const id=seat.id;
+  if(el.classList.contains('selected')){
+    el.classList.remove('selected');if(el.classList.contains('recommended'))el.classList.add('recommended');else el.classList.add('available');
+    selectedSeats=selectedSeats.filter(s=>s.id!==id);SeatLockSystem.release(id,currentUser.id);showToast('info',`已取消座位 ${id}`);
+  } else {
+    if(SeatLockSystem.isLocked(id)){const li=SeatLockSystem.getLockInfo(id);if(li&&li.userId!==currentUser.id){showToast('warning',`座位 ${id} 正在被其他用户锁定中`);return}}
+    if(!SeatLockSystem.acquire(id,currentUser.id)){showToast('error',`座位 ${id} 已被占用`);return}
+    el.classList.remove('available','recommended');el.classList.add('selected');selectedSeats.push({...seat});
+    showToast('success',`已选择座位 ${id}`);
+    if(!lockTimer){lockCountdown=1800;document.getElementById('countdownTimer').style.display='inline-flex';lockTimer=setInterval(()=>{lockCountdown--;document.getElementById('countdownDisplay').textContent=formatTime(lockCountdown);if(lockCountdown<=0){clearInterval(lockTimer);lockTimer=null;document.getElementById('countdownTimer').style.display='none';selectedSeats.forEach(s=>SeatLockSystem.release(s.id,currentUser.id));selectedSeats=[];initSeats();showToast('warning','选座超时，座位已释放')}},1000)}
+  }updateBookingSummary();
+}
+
+function updateBookingSummary(){
+  const c=selectedSeats.length;document.getElementById('selectedSeatsCount').textContent=c;document.getElementById('selectedSeatsList').textContent=c>0?selectedSeats.map(s=>s.id).join(', '):'无';
+  const h=SystemData.halls.find(x=>x.id===selectedHallId),s=document.getElementById('movieSelect'),m=SystemData.movies.find(x=>x.id===parseInt(s.value));
+  document.getElementById('selectedHall').textContent=h?`${h.name} ${h.label}`:'未选择';document.getElementById('selectedShowtime').textContent=selectedShowtime||'未选择';
+  let total=0;const bp=m?m.basePrice:45,pa=h?h.priceAdj:0,sp=bp*(1+pa);selectedSeats.forEach(()=>{total+=sp});const sf=c*3;document.getElementById('totalAmount').textContent=(total+sf).toFixed(2);
+  if(h&&m)document.getElementById('ticketPrice').textContent=sp.toFixed(2);
+}
+
+function updatePriceInfo(){const s=document.getElementById('movieSelect'),m=SystemData.movies.find(x=>x.id===parseInt(s.value)),h=SystemData.halls.find(x=>x.id===selectedHallId);if(m&&h)document.getElementById('ticketPrice').textContent=(m.basePrice*(1+h.priceAdj)).toFixed(2)}
+
+function initRecommendations(){const r=(items,container)=>{container.innerHTML=items.map(item=>`<div class="rec-item"><div class="rec-rank">${item.rank}</div><span class="rec-name">${item.name}</span><span class="rec-tag">${item.tag}</span><span class="rec-score"><i class="fas fa-star"></i> ${item.score}</span></div>`).join('')};
+  r([{rank:1,name:'流浪地球3',score:'9.2',tag:'🔥 热门推荐'},{rank:2,name:'封神第二部',score:'8.8',tag:'⭐ 高评分'},{rank:3,name:'宇宙探索编辑部',score:'8.6',tag:'👍 口碑佳作'}],document.getElementById('collaborativeRec'));
+  r([{rank:1,name:'深海',score:'8.9',tag:'🎨 动画奇幻'},{rank:2,name:'哪吒之魔童闹海',score:'9.0',tag:'⚡ 动画动作'},{rank:3,name:'交换人生',score:'8.2',tag:'🔄 喜剧奇幻'}],document.getElementById('contentRec'));
+  r([{rank:1,name:'满江红2',score:'8.5',tag:'📜 剧情悬疑'},{rank:2,name:'消失的她2',score:'8.7',tag:'🔍 悬疑犯罪'},{rank:3,name:'无名',score:'8.4',tag:'🕵️ 剧情历史'}],document.getElementById('timeRec'));
+  Logger.info('recommendation','推荐系统初始化完成');
+}
+
+function initPricingCalculator(){document.getElementById('occupancyRate').addEventListener('input',function(){document.getElementById('occupancyValue').textContent=this.value+'%'});document.getElementById('calculatePriceBtn').addEventListener('click',calculatePrice);calculatePrice()}
+function calculatePrice(){const bp=parseFloat(document.getElementById('basePrice').value)||45,st=document.getElementById('showTime').value,occ=parseInt(document.getElementById('occupancyRate').value),ht=document.getElementById('hallType').value,hol=document.getElementById('isHoliday').checked,wk=document.getElementById('isWeekend').checked;let ta=0,oa=0,ha=0,hola=0,wka=0;switch(st){case'morning':ta=-0.10;break;case'afternoon':ta=0;break;case'evening':ta=0.15;break;case'late':ta=0.05}if(occ>80)oa=0.10;else if(occ<30)oa=-0.15;switch(ht){case'imax':ha=0.30;break;case'vip':ha=0.50}if(hol)hola=0.20;if(wk)wka=0.05;const fp=bp*(1+ta+oa+ha+hola+wka);document.getElementById('calcBasePrice').textContent=bp.toFixed(2);document.getElementById('calcTimeAdjust').textContent=(ta*100).toFixed(0)+'%';document.getElementById('calcOccupancyAdjust').textContent=(oa*100).toFixed(0)+'%';document.getElementById('calcHallAdjust').textContent=(ha*100).toFixed(0)+'%';document.getElementById('calcHolidayAdjust').textContent=(hola*100).toFixed(0)+'%';document.getElementById('calcWeekendAdjust').textContent=(wka*100).toFixed(0)+'%';document.getElementById('calcFinalPrice').textContent=fp.toFixed(2)}
+
+// ============================================================================
+// 管理员 - 影片管理功能
+// ============================================================================
+function showAddMovieModal(){
+  document.getElementById('addMovieForm').reset();
+  document.getElementById('am_status').value='showing';
+  document.getElementById('am_days').value='15';
+  document.getElementById('am_rating').value='8.0';
+  document.getElementById('am_price').value='45';
+  document.getElementById('am_duration').value='120分钟';
+  document.getElementById('am_icon').value='🎬';
+  showModal('addMovieModal');
+}
+
+document.getElementById('addMovieForm')?.addEventListener('submit',function(e){
+  e.preventDefault();
+  if(!currentUser||currentUser.role!=='admin'){showToast('error','仅管理员可以添加电影');hideModal('addMovieModal');return}
+  const title=document.getElementById('am_title').value.trim();
+  const genre=document.getElementById('am_genre').value;
+  const rating=parseFloat(document.getElementById('am_rating').value)||8.0;
+  const duration=document.getElementById('am_duration').value.trim()||'120分钟';
+  const basePrice=parseFloat(document.getElementById('am_price').value)||45;
+  const status=document.getElementById('am_status').value;
+  const screeningDays=parseInt(document.getElementById('am_days').value)||15;
+  const director=document.getElementById('am_director').value.trim()||'待定';
+  const release=document.getElementById('am_release').value.trim()||'待定';
+  const actorsStr=document.getElementById('am_actors').value.trim();
+  const actors=actorsStr?actorsStr.split(/[,，]/).map(s=>s.trim()).filter(Boolean):['待定'];
+  const icon=document.getElementById('am_icon').value.trim()||'🎬';
+  const desc=document.getElementById('am_desc').value.trim()||title+' 精彩上映！';
+  if(!title||!genre){showToast('warning','电影名称和类型为必填项');return}
+  const id=SystemData.nextId++;
+  const newMovie={
+    id,title,genre,rating,duration,basePrice,icon,desc,
+    actors,director,release,lang:'中文',country:'中国',
+    status,screeningDays,plot:desc,
+    _addedAt:Date.now()
+  };
+  SystemData.movies.push(newMovie);
+  hideModal('addMovieModal');
+  initMovies();initMovieSelect();updateAdminMovieTable();updateAdminStats();
+  Logger.info('movieManage',`管理员添加了新电影《${title}》(ID:${id}) 状态:${status} 放映:${screeningDays}天`,currentUser.id);
+  showToast('success',`✅ 电影《${title}》添加成功！状态: ${status==='presale'?'🔥预售':'上映中'} 放映 ${screeningDays} 天`);
+});
+
+function deleteMovie(id){
+  if(!currentUser||currentUser.role!=='admin'){showToast('error','仅管理员可以操作');return}
+  const idx=SystemData.movies.findIndex(m=>m.id===id);
+  if(idx===-1){showToast('error','电影不存在');return}
+  const movie=SystemData.movies[idx];
+  if(!confirm(`确定要删除电影《${movie.title}》吗？此操作不可恢复！`))return;
+  SystemData.movies.splice(idx,1);
+  initMovies();initMovieSelect();updateAdminMovieTable();updateAdminStats();
+  Logger.info('movieManage',`管理员删除了电影《${movie.title}》(ID:${id})`,currentUser.id);
+  showToast('success',`已删除《${movie.title}》`);
+}
+
+function updateMovieStatus(id,newStatus){
+  if(!currentUser||currentUser.role!=='admin'){showToast('error','仅管理员可以操作');return}
+  const movie=SystemData.movies.find(m=>m.id===id);
+  if(!movie){showToast('error','电影不存在');return}
+  const labels={showing:'上映中',presale:'预售中',ended:'已下架'};
+  if(!confirm(`确定将《${movie.title}》状态改为「${labels[newStatus]}」？`))return;
+  movie.status=newStatus;
+  if(newStatus==='showing'||newStatus==='presale')movie._addedAt=Date.now();
+  initMovies();initMovieSelect();updateAdminMovieTable();updateAdminStats();
+  Logger.info('movieManage',`管理员修改了《${movie.title}》状态为 ${newStatus}`,currentUser.id);
+  showToast('success',`《${movie.title}》已改为「${labels[newStatus]}」`);
+}
+
+function updateMovieDays(id){
+  if(!currentUser||currentUser.role!=='admin'){showToast('error','仅管理员可以操作');return}
+  const movie=SystemData.movies.find(m=>m.id===id);
+  if(!movie){showToast('error','电影不存在');return}
+  const days=prompt(`设置《${movie.title}》的放映天数（当前: ${movie.screeningDays}天）:`,`${movie.screeningDays}`);
+  if(days===null)return;
+  const nd=parseInt(days);
+  if(isNaN(nd)||nd<1){showToast('warning','请输入有效的天数（至少1天）');return}
+  movie.screeningDays=nd;
+  if(movie.status==='showing'||movie.status==='presale')movie._addedAt=Date.now();
+  updateAdminMovieTable();
+  Logger.info('movieManage',`管理员修改了《${movie.title}》放映天数为 ${nd}天`,currentUser.id);
+  showToast('success',`《${movie.title}》放映天数已改为 ${nd} 天`);
+}
+
+// ============================================================================
+// 管理员 - 初始化
+// ============================================================================
+function initAdmin(){
+  updateAdminStats();updateScheduleTable();updateOrderTable();updateBoxOfficeStats();
+  updateUserStats();updateLogTable();updateSystemStatus();updateAdminMovieTable();
+  document.querySelectorAll('.admin-tab').forEach(t=>{
+    t.addEventListener('click',function(){
+      document.querySelectorAll('.admin-tab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.admin-panel').forEach(x=>x.classList.remove('active'));
+      this.classList.add('active');document.getElementById('panel-'+this.dataset.tab).classList.add('active');
+      const a={overview:()=>{updateAdminStats();updateSystemStatus()},movies:updateScheduleTable,movieManage:updateAdminMovieTable,orders:updateOrderTable,stats:updateBoxOfficeStats,users:updateUserStats,logs:updateLogTable};
+      if(a[this.dataset.tab])a[this.dataset.tab]()
+    })
+  });
+  document.getElementById('logLevel').addEventListener('change',updateLogTable);
+}
+
+function updateAdminStats(){
+  const m=getActiveMovies().length,o=SystemData.orders.length,p=SystemData.orders.filter(x=>x.payment_status==='paid').length,r=SystemData.orders.filter(x=>x.payment_status==='paid').reduce((s,o)=>s+o.total_amount,0),u=SystemData.users.length,presale=getPresaleMovies().length;
+  document.getElementById('adminStats').innerHTML=`<div class="stat-card"><div class="stat-value">${m}</div><div class="stat-label">上映/预售影片</div></div><div class="stat-card"><div class="stat-value">${presale}</div><div class="stat-label">预售影片</div></div><div class="stat-card"><div class="stat-value">${o}</div><div class="stat-label">总订单</div></div><div class="stat-card"><div class="stat-value">${p}</div><div class="stat-label">已支付</div></div><div class="stat-card"><div class="stat-value">¥${r.toFixed(0)}</div><div class="stat-label">总收入</div></div><div class="stat-card"><div class="stat-value">${u}</div><div class="stat-label">用户</div></div>`;
+}
+
+function updateSystemStatus(){document.getElementById('systemStatus').innerHTML=`<div class="stat-card" style="text-align:left;padding:16px;"><p style="font-size:13px;color:var(--text-dim);margin-bottom:4px;"><i class="fas fa-server" style="color:var(--success)"></i> 数据库</p><p style="font-size:13px;color:var(--text-muted);">状态: <span style="color:var(--success)">正常运行</span></p><p style="font-size:13px;color:var(--text-muted);">连接池: 10/20</p></div><div class="stat-card" style="text-align:left;padding:16px;"><p style="font-size:13px;color:var(--text-dim);margin-bottom:4px;"><i class="fas fa-memory" style="color:var(--accent)"></i> 缓存系统</p><p style="font-size:13px;color:var(--text-muted);">缓存项: ${Cache.store.size}</p><p style="font-size:13px;color:var(--text-muted);">命中率: 94.2%</p></div><div class="stat-card" style="text-align:left;padding:16px;"><p style="font-size:13px;color:var(--text-dim);margin-bottom:4px;"><i class="fas fa-lock" style="color:var(--warning)"></i> 锁座系统</p><p style="font-size:13px;color:var(--text-muted);">活跃锁: ${SeatLockSystem.locks.size}</p><p style="font-size:13px;color:var(--text-muted);">超时清理: 30s</p></div><div class="stat-card" style="text-align:left;padding:16px;"><p style="font-size:13px;color:var(--text-dim);margin-bottom:4px;"><i class="fas fa-history" style="color:var(--primary)"></i> 日志系统</p><p style="font-size:13px;color:var(--text-muted);">总日志: ${SystemData.systemLogs.length}</p><p style="font-size:13px;color:var(--text-muted);">错误: ${SystemData.systemLogs.filter(l=>l.level==='error').length}</p></div>`}
+function updateScheduleTable(){
+  const t=document.getElementById('scheduleTable');
+  const scheds = SystemData.schedules;
+  if(!scheds.length){t.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:30px;">暂无排片数据，请添加电影后重新生成排片</td></tr>';return;}
+  // 为每个有效影片按影厅分组显示排片
+  const byMovie = {};
+  scheds.forEach(s=>{
+    if(s.status!=='active')return;
+    if(!byMovie[s.movieId]) byMovie[s.movieId]=[];
+    byMovie[s.movieId].push(s);
+  });
+  let html = '';
+  const hallNames = {1:'1号厅(IMAX)',2:'2号厅(VIP)',3:'3号厅(VIP)',4:'4号厅(普通)',5:'5号厅(普通)',6:'6号厅(普通)'};
+  const hallTypes = {1:'imax',2:'vip',3:'vip',4:'normal',5:'normal',6:'normal'};
+  Object.keys(byMovie).slice(0,15).forEach(mid=>{
+    const movie = SystemData.movies.find(m=>m.id===parseInt(mid));
+    if(!movie||(movie.status!=='showing'&&movie.status!=='presale')) return;
+    const scheds = byMovie[mid].slice(0,3); // 最多显示3条
+    scheds.forEach(s=>{
+      const hn = hallNames[s.hallId]||'未知厅';
+      const timeBlock = s.timeBlock==='morning'?'☀️上午档':'🌙夜场档';
+      const occ = Math.floor(30+Math.random()*50);
+      html+=`<tr><td>${movie.title}${movie.status==='presale'?' 🔥预售':''}</td>
+        <td>${movie.genre}</td>
+        <td>${hn}</td>
+        <td>${s.startTime}-${s.endTime} <small style="color:var(--text-dim);font-size:10px;">${timeBlock}</small></td>
+        <td>¥${movie.basePrice}</td>
+        <td>${occ}%</td>
+        <td><span class="status-badge ${occ>70?'showing':'pending'}">${occ>70?'🔥畅销':movie.status==='presale'?'预售':'售票中'}</span></td></tr>`;
+    });
+  });
+  t.innerHTML = html || '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:30px;">暂无有效排片</td></tr>';
+}
+
+function updateAdminMovieTable(){
+  const tbody=document.getElementById('movieManageTable');
+  tbody.innerHTML=SystemData.movies.map(m=>{
+    const endDate=m._addedAt?new Date(m._addedAt+m.screeningDays*86400000).toLocaleDateString():'未设置';
+    const statusLabels={showing:'上映中',presale:'🔥预售',ended:'已下架'};
+    return `<tr>
+      <td style="font-size:12px;">${m.id}</td>
+      <td><strong>${m.title}</strong></td>
+      <td>${m.genre}</td>
+      <td>${m.rating}</td>
+      <td>¥${m.basePrice}</td>
+      <td><span class="status-badge ${m.status}">${statusLabels[m.status]||m.status}</span></td>
+      <td>${m.screeningDays}天</td>
+      <td style="font-size:12px;">${endDate}</td>
+      <td><div class="actions">
+        ${m.status!=='showing'?`<button class="btn btn-success btn-sm" onclick="updateMovieStatus(${m.id},'showing')" title="设为上映"><i class="fas fa-play"></i></button>`:''}
+        ${m.status!=='presale'?`<button class="btn btn-sm" style="background:rgba(253,121,168,0.2);color:var(--secondary);" onclick="updateMovieStatus(${m.id},'presale')" title="设为预售"><i class="fas fa-fire"></i></button>`:''}
+        ${m.status!=='ended'?`<button class="btn btn-danger btn-sm" onclick="updateMovieStatus(${m.id},'ended')" title="下架"><i class="fas fa-stop"></i></button>`:''}
+        <button class="btn btn-outline btn-sm" onclick="updateMovieDays(${m.id})" title="设置放映天数"><i class="fas fa-calendar-alt"></i></button>
+        <button class="btn btn-danger btn-sm" onclick="deleteMovie(${m.id})" title="删除影片"><i class="fas fa-trash"></i></button>
+      </div></td>
+    </tr>`
+  }).join('');
+}
+
+function updateOrderTable(){const t=document.getElementById('orderTable');if(!SystemData.orders.length){t.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:40px;">暂无订单数据</td></tr>';return}t.innerHTML=SystemData.orders.map(o=>{const u=SystemData.users.find(x=>x.id===o.user_id);return `<tr><td style="font-size:12px;">${o.order_number}</td><td>${u?.username||'未知'}</td><td>${o.movie_title}</td><td>${o.hall_name||''}</td><td>${o.seats.join(', ')}</td><td>¥${o.total_amount.toFixed(2)}</td><td><span class="status-badge ${o.payment_status}">${o.payment_status==='paid'?'已支付':o.payment_status==='pending'?'待支付':'已取消'}</span></td><td>${new Date(o.created_at).toLocaleString()}</td></tr>`}).join('')}
+function updateBoxOfficeStats(){const r=SystemData.orders.filter(o=>o.payment_status==='paid').reduce((s,o)=>s+o.total_amount,0),ti=SystemData.orders.filter(o=>o.payment_status==='paid').reduce((s,o)=>s+o.seats.length,0);document.getElementById('boxOfficeStats').innerHTML=`<div class="stat-card"><div class="stat-value">¥${r.toFixed(0)}</div><div class="stat-label">总票房</div></div><div class="stat-card"><div class="stat-value">${ti}</div><div class="stat-label">售出票数</div></div><div class="stat-card"><div class="stat-value">¥${ti?(r/ti).toFixed(2):'0.00'}</div><div class="stat-label">平均票价</div></div><div class="stat-card"><div class="stat-value">${Math.floor(35+Math.random()*40)}%</div><div class="stat-label">总体上座率</div></div>`;const mr={};SystemData.orders.filter(o=>o.payment_status==='paid').forEach(o=>{if(!mr[o.movie_title])mr[o.movie_title]={revenue:0,tickets:0};mr[o.movie_title].revenue+=o.total_amount;mr[o.movie_title].tickets+=o.seats.length});const so=Object.entries(mr).sort((a,b)=>b[1].revenue-a[1].revenue),rd=document.getElementById('boxOfficeRanking');if(!so.length){rd.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:40px;">暂无票房数据</td></tr>';return}rd.innerHTML=so.slice(0,10).map(([t,d],i)=>{const m=SystemData.movies.find(x=>x.title===t);return `<tr><td><strong style="color:${i<3?'var(--warning)':'var(--text-dim)'}">#${i+1}</strong></td><td>${t}</td><td>${m?.genre||'未知'}</td><td>¥${d.revenue.toFixed(0)}</td><td>${d.tickets}</td><td>${Math.floor(30+Math.random()*50)}%</td></tr>`}).join('')}
+function updateUserStats(){const t=SystemData.users.length,a=SystemData.users.filter(u=>u.role==='user').length;document.getElementById('userStats').innerHTML=`<div class="stat-card"><div class="stat-value">${t}</div><div class="stat-label">总用户</div></div><div class="stat-card"><div class="stat-value">${a}</div><div class="stat-label">普通用户</div></div><div class="stat-card"><div class="stat-value">${t-a}</div><div class="stat-label">管理员</div></div><div class="stat-card"><div class="stat-value">${SystemData.orders.length?Math.round(SystemData.orders.filter(o=>o.payment_status==='paid').length/SystemData.orders.length*100):0}%</div><div class="stat-label">购票转化率</div></div>`}
+function updateLogTable(){const tbody=document.getElementById('logTable'),lvl=document.getElementById('logLevel').value;let logs=SystemData.systemLogs;if(lvl!=='all')logs=logs.filter(l=>l.level===lvl);if(!logs.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:40px;">暂无系统日志</td></tr>';return}const lc={info:'var(--accent)',warning:'var(--warning)',error:'var(--danger)'};tbody.innerHTML=logs.slice(0,30).map(l=>{const u=l.userId?SystemData.users.find(x=>x.id===l.userId):null;return `<tr><td style="font-size:12px;">${new Date(l.time).toLocaleString()}</td><td><span style="color:${lc[l.level]||'var(--text-dim)'}">${l.level.toUpperCase()}</span></td><td>${l.module}</td><td>${l.message}</td><td>${u?.username||'系统'}</td></tr>`}).join('')}
+
+function initEventListeners(){
+  document.querySelectorAll('.filter-btn').forEach(b=>{b.addEventListener('click',function(){document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));this.classList.add('active');const g=this.dataset.genre;currentGenreFilter=g;initMovies()})});
+  document.getElementById('navToggle').addEventListener('click',()=>document.getElementById('navMenu').classList.toggle('open'));
+  document.getElementById('loginBtn').addEventListener('click',()=>{showModal('loginModal');document.querySelectorAll('.login-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.login-panel').forEach(p=>p.classList.remove('active'));document.querySelector('.login-tab[data-login="user"]').classList.add('active');document.getElementById('loginUserPanel').classList.add('active')});
+  document.getElementById('registerBtn').addEventListener('click',()=>showModal('registerModal'));
+  document.querySelectorAll('.login-tab').forEach(t=>{t.addEventListener('click',function(){document.querySelectorAll('.login-tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.login-panel').forEach(p=>p.classList.remove('active'));document.querySelector(`.login-tab[data-login="${this.dataset.login}"]`).classList.add('active');document.getElementById(`login${this.dataset.login==='admin'?'Admin':'User'}Panel`).classList.add('active')})});
+  document.getElementById('loginForm').addEventListener('submit',function(e){e.preventDefault();const un=document.getElementById('loginUsername').value,pw=document.getElementById('loginPassword').value;const user=SystemData.users.find(u=>u.username===un&&u.password===pw);if(user){loginSuccess(user,un);document.getElementById('loginUsername').value='';document.getElementById('loginPassword').value=''}else{showToast('error','用户名或密码错误！');Logger.warning('auth',`用户登录失败: ${un}`)}});
+  document.getElementById('loginAdminForm').addEventListener('submit',function(e){e.preventDefault();const un=document.getElementById('loginAdminUsername').value,pw=document.getElementById('loginAdminPassword').value;if(un==='admin'&&pw==='admin123'){loginSuccess(SystemData.users[0],'管理员');document.getElementById('loginAdminUsername').value='admin';document.getElementById('loginAdminPassword').value='admin123'}else{showToast('error','管理员账号或密码错误！');Logger.warning('auth','管理员登录失败')}});
+  function loginSuccess(user,label){currentUser=user;hideModal('loginModal');document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('userInfo').style.display='flex';document.getElementById('userNameDisplay').textContent='👋 '+label+(user.role==='admin'?' (管理员)':'');if(user.role==='admin'){document.querySelectorAll('.admin-only').forEach(el=>el.style.display='');document.getElementById('userRoleBadge').style.display='inline-block';document.getElementById('userRoleBadge').textContent='管理员';showToast('success','管理员登录成功！已解锁定价和影片管理模块');updateAdminMovieTable()}else{document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none')}showToast('success',`欢迎回来，${label}！`);Logger.info('auth',`${label}登录成功`,user.id)}
+  document.getElementById('registerForm').addEventListener('submit',function(e){e.preventDefault();const un=document.getElementById('registerUsername').value,em=document.getElementById('registerEmail').value,pw=document.getElementById('registerPassword').value,cf=document.getElementById('registerConfirmPassword').value;if(pw!==cf){showToast('error','两次输入的密码不一致');return}if(SystemData.users.find(u=>u.username===un)){showToast('error','用户名已存在');return}const nu={id:SystemData.users.length+1,username:un,password:pw,email:em,role:'user'};SystemData.users.push(nu);currentUser=nu;hideModal('registerModal');document.getElementById('loginBtn').style.display='none';document.getElementById('registerBtn').style.display='none';document.getElementById('userInfo').style.display='flex';document.getElementById('userNameDisplay').textContent='👋 '+un;showToast('success','注册成功！欢迎加入！');Logger.info('auth',`新用户 ${un} 注册成功`,nu.id);document.getElementById('registerForm').reset()});
+  document.getElementById('logoutBtn').addEventListener('click',function(){if(lockTimer){clearInterval(lockTimer);lockTimer=null}selectedSeats.forEach(s=>SeatLockSystem.release(s.id,currentUser.id));selectedSeats=[];Logger.info('auth',`用户 ${currentUser.username} 已退出`,currentUser.id);currentUser=null;document.getElementById('loginBtn').style.display='';document.getElementById('registerBtn').style.display='';document.getElementById('userInfo').style.display='none';document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');showToast('info','已退出登录');initSeats()});
+  document.getElementById('movieSelect').addEventListener('change',function(){if(this.value){generateShowtimes();initSeats();const m=SystemData.movies.find(x=>x.id===parseInt(this.value));if(m)showToast('info',`已选择《${m.title}》${m.status==='presale'?' 🔥预售':''}`)}else{initSeats()}});
+  document.getElementById('confirmBookingBtn').addEventListener('click',function(){if(!selectedSeats.length){showToast('warning','请先选择座位！');return}if(!currentUser){showToast('warning','请先登录！');showModal('loginModal');return}if(!selectedShowtime){showToast('warning','请选择场次！');return}if(!selectedHallId){showToast('warning','请选择影厅！');return}const sel=document.getElementById('movieSelect'),movie=SystemData.movies.find(m=>m.id===parseInt(sel.value)),hall=SystemData.halls.find(h=>h.id===selectedHallId),basePrice=movie?movie.basePrice:45,priceAdj=hall?hall.priceAdj:0,seatPrice=basePrice*(1+priceAdj),total=selectedSeats.reduce((s)=>s+seatPrice,0)+selectedSeats.length*3,orderNum=genOrderNum();currentOrder={order_number:orderNum,user_id:currentUser.id,movie_id:movie.id,movie_title:movie.title,hall_name:hall?`${hall.name} ${hall.label}`:'',showtime:selectedShowtime,seats:selectedSeats.map(s=>s.id),total_amount:total,service_fee:selectedSeats.length*3,payment_status:'pending',created_at:new Date().toISOString()};SystemData.orders.push(currentOrder);Logger.info('order',`订单 ${orderNum} 已创建 ¥${total}`,currentUser.id);document.getElementById('paymentOrderNum').textContent=orderNum;document.getElementById('paymentMovie').textContent=movie.title;document.getElementById('paymentHall').textContent=hall?`${hall.name} ${hall.label}`:'';document.getElementById('paymentShowtime').textContent=selectedShowtime+' '+document.getElementById('showDate').value;document.getElementById('paymentSeats').textContent=selectedSeats.map(s=>s.id).join(', ');document.getElementById('paymentAmount').textContent=total.toFixed(2);let payCount=1800;document.getElementById('paymentCountdown').textContent=formatTime(payCount);if(paymentTimer)clearInterval(paymentTimer);paymentTimer=setInterval(()=>{payCount--;document.getElementById('paymentCountdown').textContent=formatTime(payCount);if(payCount<=0)cancelPayment()},1000);showModal('paymentModal')});
+  document.querySelectorAll('.payment-method').forEach(b=>{b.addEventListener('click',function(){document.querySelectorAll('.payment-method').forEach(x=>x.classList.remove('active'));this.classList.add('active')})});
+  document.getElementById('payNowBtn').addEventListener('click',async function(){const method=document.querySelector('.payment-method.active')?.dataset.method||'alipay',amount=parseFloat(document.getElementById('paymentAmount').textContent);this.disabled=true;this.innerHTML='<i class="fas fa-spinner fa-spin"></i> 支付处理中...';await new Promise(r=>setTimeout(r,1500));const success=Math.random()>0.05;this.disabled=false;this.innerHTML='<i class="fas fa-check-circle"></i> 立即支付';if(success){if(paymentTimer){clearInterval(paymentTimer);paymentTimer=null}const order=SystemData.orders.find(o=>o.order_number===currentOrder.order_number);if(order){order.payment_status='paid';order.payment_method=method;order.payment_time=new Date().toISOString()}hideModal('paymentModal');const ids=selectedSeats.map(s=>s.id).join(', ');selectedSeats=[];initSeats();showToast('success',`🎉 支付成功！订单号: ${currentOrder.order_number}\n座位: ${ids}`);Logger.info('payment',`订单 ${currentOrder.order_number} 支付完成`,currentUser?.id);updateAdminStats();updateOrderTable();updateBoxOfficeStats()}else{showToast('error','支付失败，请重试')}});
+  window.cancelPayment=function(){if(paymentTimer){clearInterval(paymentTimer);paymentTimer=null}hideModal('paymentModal');if(currentOrder){const o=SystemData.orders.find(x=>x.order_number===currentOrder.order_number);if(o)o.payment_status='cancelled'}selectedSeats.forEach(s=>SeatLockSystem.release(s.id,currentUser?.id));selectedSeats=[];initSeats();showToast('warning','订单已取消，座位已释放');if(currentOrder)Logger.info('order',`订单 ${currentOrder.order_number} 已取消`,currentUser?.id)};
+  document.getElementById('clearSeatsBtn').addEventListener('click',function(){if(!selectedSeats.length){showToast('info','当前没有选择任何座位');return}selectedSeats.forEach(s=>SeatLockSystem.release(s.id,currentUser?.id));selectedSeats=[];if(lockTimer){clearInterval(lockTimer);lockTimer=null;document.getElementById('countdownTimer').style.display='none'}initSeats();showToast('info','已清除所有选座')});
+  window.addEventListener('click',function(e){if(e.target.classList.contains('modal-overlay'))e.target.classList.remove('active')});
+  window.addEventListener('scroll',function(){const secs=['home','movies','booking','recommendations','pricing','admin'];let cur='home';secs.forEach(id=>{const el=document.getElementById(id);if(el&&window.scrollY>=el.offsetTop-200)cur=id});document.querySelectorAll('.nav-link').forEach(l=>{l.classList.toggle('active',l.getAttribute('onclick')?.includes(`'${cur}'`)||false)})});
+}
+</script>
+</body>
+</html>
